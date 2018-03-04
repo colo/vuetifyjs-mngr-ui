@@ -71,14 +71,18 @@
 
 <script>
 
+
+import Pipeline from 'node-mngr-worker/lib/pipeline'
+//import InputPollerHttpOS from './libs/input.poller.http.os'
+import InputPollerCradleOS from './libs/input.poller.cradle.os'
+
+
+import Vue from 'vue';
+
 /**
 * https://alligator.io/vuejs/global-event-bus/
 * vue events as message bus
 */
-import Pipeline from 'node-mngr-worker/lib/pipeline'
-import InputPollerHttpOS from './libs/input.poller.http.os'
-
-import Vue from 'vue';
 const EventBus = new Vue();
 
 const pipelines = []
@@ -86,22 +90,22 @@ pipelines.push(new Pipeline({
 	input: [
 		{
 			poll: {
-				id: "input.os.http",
+				id: "input.os.cradle",
 				conn: [
 					{
-						scheme: 'http',
-						host:'192.168.0.180',
-						//host:'127.0.0.1',
+						scheme: 'cradle',
+						//host:'192.168.0.180',
+						host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
-						module: InputPollerHttpOS,
+						module: InputPollerCradleOS,
 						//load: ['apps/info/os/']
 					}
 				],
-				connect_retry_count: 1,
-				connect_retry_periodical: 10000,
+				connect_retry_count: 5,
+				connect_retry_periodical: 1000,
 				requests: {
-					periodical: 5000,
+					periodical: 1000,
 				},
 			},
 		}

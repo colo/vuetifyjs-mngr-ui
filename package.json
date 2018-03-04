@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "echarts": "^4.0.4",
+    "node-app-cradle-client": "git+https://github.com/colo/node-app-cradle-client.git",
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
     "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
     "vue": "^2.5.2",

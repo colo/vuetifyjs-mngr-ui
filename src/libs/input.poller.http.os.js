@@ -23,13 +23,13 @@ export default new Class({
 						},
 						qs: {
 							
-								startkey: ["os", this.host, "periodical",Date.now()],
-								endkey: ["os", this.host, "periodical", Date.now() - 2000],
+								//startkey: ["os", app.host, "periodical",Date.now()],
+								//endkey: ["os", app.host, "periodical", Date.now() - 2000],
 								/**
 								 * pouchdb
 								 * */
-								//startkey: ["os", app.host, "periodical\ufff0"],
-								//endkey: ["os", app.host, "periodical"],
+								startkey: ["os", app.host, "periodical\ufff0"],
+								endkey: ["os", app.host, "periodical"],
 								/** **/
 								
 								limit: 1,
