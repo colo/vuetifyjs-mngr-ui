@@ -74,7 +74,8 @@
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 //import InputPollerHttpOS from './libs/input.poller.http.os'
-import InputPollerCradleOS from './libs/input.poller.cradle.os'
+// not working -> import InputPollerCradleOS from './libs/input.poller.cradle.os'
+import InputPollerCouchDBOS from './libs/input.poller.couchdb.os'
 
 
 import Vue from 'vue';
@@ -93,12 +94,12 @@ pipelines.push(new Pipeline({
 				id: "input.os.cradle",
 				conn: [
 					{
-						scheme: 'cradle',
-						//host:'192.168.0.180',
-						host:'127.0.0.1',
+						scheme: 'http',
+						host:'192.168.0.180',
+						// host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
-						module: InputPollerCradleOS,
+						module: InputPollerCouchDBOS,
 						//load: ['apps/info/os/']
 					}
 				],
@@ -114,19 +115,19 @@ pipelines.push(new Pipeline({
 		function(doc, opts, next){
 			//console.log('test filter', doc);
 			let mem_doc = {totalmem: doc.totalmem, freemem: doc.freemem};
-			
+
 			next(mem_doc);
 		}
 	],
 	output: [
 		function(doc){
 			doc = JSON.decode(doc)
-			
+
 			if(doc.totalmem){
 				EventBus.$emit('mem', doc)
 				console.log(doc)//update mem widget
 			}
-				
+
 		}
 	]
 }))
@@ -166,14 +167,14 @@ export default {
   watch: {
 		freemem: function(val){
 			console.log('freemem update')
-			
+
 			let percentage = 100
-			
+
 			if(this.totalmem != 0)
 				percentage -= this.freemem * 100 / this.totalmem;
-			
+
 			percentage = percentage.toFixed(1);
-			
+
 			this.columns = { 'value': percentage };
 		}
 	},
