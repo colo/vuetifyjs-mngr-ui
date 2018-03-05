@@ -140,7 +140,7 @@ export default new Class({
   },
 
   sort_by_path: function(err, resp){
-		console.log('this.sort_by_path %o', resp);
+		// console.log('this.sort_by_path %o', resp);
 
 		if(err){
 			console.log('this.sort_by_path error %o', err);
@@ -149,19 +149,21 @@ export default new Class({
 		else{
 			//let result = JSON.decode(resp.body)
 
-			//console.log('this.get result %o', result);
+			console.log('this.get result %o', resp);
 
-			if(resp.rows[0]){
-				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc.data, {type: 'periodical', input_type: this, app: null}]);
+      if(resp.rows[0]){
+				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
 
-				//for (var key in result.rows[0].doc.data) {
-					//console.log(key);
-				//}
+				// for (var key in resp.rows[0].doc.data) {
+				// 	console.log(key);
+        //   if(key == 'cpus')
+        //     console.log(resp.rows[0].doc.data['cpus'])
+				// }
 			}
 		}
   },
   request: function(err, resp){
-		console.log('this.info %o', resp);
+		// console.log('this.info %o', resp);
 
 		//console.log('---INFO RESP---');
 		//this.get({uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
@@ -231,7 +233,7 @@ export default new Class({
 		}
 	},
 	_first_connect: function(err, result, body, opts){
-		console.log('first_connect %o', result.uuid);
+		// console.log('first_connect %o', result.uuid);
 		this.options.id = result.uuid;//set ID
 
 	}

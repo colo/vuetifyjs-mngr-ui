@@ -14,7 +14,7 @@
 <script type="text/babel">
   import IEcharts from 'vue-echarts-v3/src/full.js';
   export default {
-    name: 'echart',
+    name: 'mem-gauge',
     components: {
       IEcharts
     },
@@ -50,24 +50,24 @@
 			columns: function (val) {
 				if(typeof(val) == 'string')
 					val = JSON.parse(val)
-				
+
 				this.loading = !this.loading;
         this.gauge.series[0].data = [val];
-				
-				console.log('App columns', this.gauge.series[0].data)
-				
+
+				// console.log('App columns', this.gauge.series[0].data)
+
 			},
 		},
 		mounted () {
-			
+
       if(typeof(this.columns) == 'string')
 				this.columns = JSON.parse(this.columns)
-			
-			console.log(this.columns)
-			
+
+			// console.log(this.columns)
+
 			this.gauge.series[0].data = [this.columns];
-      
-      
+
+
     },
     methods: {
       /**doRandom() {
@@ -80,10 +80,10 @@
         that.gauge.series[0].data = data;
       },**/
       onReady(instance, ECharts) {
-        console.log(instance, ECharts);
+        // console.log(instance, ECharts);
       },
       onClick(event, instance, ECharts) {
-        console.log(arguments);
+        // console.log(arguments);
       }
     }
   };

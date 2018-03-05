@@ -45,7 +45,10 @@
       </v-btn>
     </v-toolbar>
     <v-content>
-      <router-view :columns="columns"/>
+      <!-- <router-view :columns="columns"/> -->
+      <mem-gauge :columns="mem.columns"/>
+      <mem-gauge :columns="cpu.columns"/>
+
     </v-content>
     <v-navigation-drawer
       temporary
@@ -70,7 +73,6 @@
 </template>
 
 <script>
-
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 //import InputPollerHttpOS from './libs/input.poller.http.os'
@@ -113,10 +115,25 @@ pipelines.push(new Pipeline({
 	],
 	filters: [
 		function(doc, opts, next){
-			//console.log('test filter', doc);
-			let mem_doc = {totalmem: doc.totalmem, freemem: doc.freemem};
+			// console.log('test filter', doc);
 
-			next(mem_doc);
+			let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
+      let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
+
+      Array.each(doc.data.cpus, function(core){
+        Object.each(core.times, function(value, key){
+
+          if(key == 'idle')
+            cpu.idle += value
+
+          cpu.total += value
+
+
+        });
+      });
+
+      next(mem);
+      next(cpu);
 		}
 	],
 	output: [
@@ -124,24 +141,40 @@ pipelines.push(new Pipeline({
 			doc = JSON.decode(doc)
 
 			if(doc.totalmem){
-				EventBus.$emit('mem', doc)
-				console.log(doc)//update mem widget
+				// console.log(doc)
+				EventBus.$emit('mem', doc) //update mem widget
+			}
+
+      if(doc.idle){
+        // console.log(doc)
+				EventBus.$emit('cpu', doc) //update cpu widget
 			}
 
 		}
 	]
 }))
 
+import MemGauge from '@/components/MemGauge'
+
 export default {
+  components: { MemGauge },
   data () {
     return {
 			/**
 			* mem
 			*/
-			host: 'colo',
-			columns: {'value': 100 },
-			totalmem: 0,
-			freemem: 0,
+			// host: 'colo',
+			mem: {
+        columns: {'value': 100 },
+        total: 0,
+	      free: 0,
+      },
+      cpu: {
+        columns: {'value': 100 },
+        total: 0,
+        idle: 0,
+        timestamp: 0,
+      },
 			/** **/
       clipped: false,
       drawer: true,
@@ -157,25 +190,55 @@ export default {
     }
   },
   mounted: function(){
-  let self = this;
+    let self = this;
 		EventBus.$on('mem', doc => {
-			console.log('recived doc via Event', doc)
-			self.totalmem = doc.totalmem;
-			self.freemem = doc.freemem;
+			// console.log('recived doc via Event mem', doc)
+			self.mem.total = doc.totalmem;
+			self.mem.free = doc.freemem;
+		})
+
+    EventBus.$on('cpu', doc => {
+			//cpu times are acumulative, so there
+      if(doc.timestamp != self.cpu.timestamp){
+        console.log('recived doc via Event cpu', doc)
+        let time_diff = doc.timestamp - self.cpu.timestamp;
+
+        self.cpu.timestamp = doc.timestamp;
+
+        //stress -> for i in 1 2 3 4; do while : ; do : ; done & done
+        
+        console.log('recived doc via Event cpu time_diff', time_diff )
+        console.log('recived doc via Event cpu', (doc.total - self.cpu.total) / time_diff)
+        console.log('recived doc via Event cpu', (doc.idle - self.cpu.idle) / time_diff)
+  			self.cpu.total = doc.total - self.cpu.total;
+  			self.cpu.idle = doc.idle - self.cpu.idle;
+      }
 		})
 	},
   watch: {
-		freemem: function(val){
-			console.log('freemem update')
+		'mem.free': function(val){
+			// console.log('freemem update')
 
 			let percentage = 100
 
-			if(this.totalmem != 0)
-				percentage -= this.freemem * 100 / this.totalmem;
+			if(this.mem.total != 0)
+				percentage -= this.mem.free * 100 / this.mem.total;
 
 			percentage = percentage.toFixed(1);
 
-			this.columns = { 'value': percentage };
+			this.mem.columns = { 'value': percentage };
+		},
+    'cpu.total': function(val){
+			// console.log('cpu update')
+
+			let percentage = 100
+
+			if(this.cpu.total != 0)
+				percentage -= this.cpu.idle * 100 / this.cpu.total;
+
+			percentage = percentage.toFixed(1);
+
+			this.cpu.columns = { 'value': percentage };
 		}
 	},
   name: 'App'
