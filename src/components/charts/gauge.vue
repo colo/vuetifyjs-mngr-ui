@@ -12,16 +12,24 @@
 </template>
 
 <script type="text/babel">
-  import IEcharts from 'vue-echarts-v3/src/full.js';
+  // import IEcharts from 'vue-echarts-v3/src/full.js';
+  import IEcharts from 'vue-echarts-v3/src/lite.js'
+  import 'echarts/lib/chart/gauge'
+  import 'echarts/lib/component/title'
+
   export default {
-    name: 'mem-gauge',
+    name: 'gauge',
     components: {
       IEcharts
     },
     props: {
 			columns: {
 				type: [String, Object],
-				 default: () => ({value: 100})
+				 default: () => ({value: 0})
+			},
+      name: {
+				type: [String],
+				 default: () => ('usage')
 			},
 		},
     data: () => ({
@@ -38,7 +46,7 @@
 					},
 					series: [
 							{
-									name: 'mem usage',
+									// name: 'mem usage',
 									type: 'gauge',
 									detail: {formatter:'{value}%'},
 									data: []
@@ -57,6 +65,11 @@
 				// console.log('App columns', this.gauge.series[0].data)
 
 			},
+      name: function (val) {
+				this.gauge.series[0].name = val;
+				// console.log('App columns', this.gauge.series[0].data)
+
+			},
 		},
 		mounted () {
 
@@ -70,15 +83,6 @@
 
     },
     methods: {
-      /**doRandom() {
-        const that = this;
-        let data = [];
-        for (let i = 0, min = 5, max = 99; i < 6; i++) {
-          data.push(Math.floor(Math.random() * (max + 1 - min) + min));
-        }
-        that.loading = !that.loading;
-        that.gauge.series[0].data = data;
-      },**/
       onReady(instance, ECharts) {
         // console.log(instance, ECharts);
       },

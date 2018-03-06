@@ -4,10 +4,6 @@
 const App = require ( '../../node_modules/node-app-couchdb-client/index' )
 
 
-//var console.log = require('console.log')('InputPollerCradleOS');
-//var console.log = require('console.log')('InputPollerCradleOS:Internals');
-//var console.log = require('console.log')('InputPollerCradleOS:Events');
-
 export default new Class({
   Extends: App,
 
@@ -26,13 +22,13 @@ export default new Class({
                 'sort',
                 'by_path',
                 {
-  								// startkey: ["os", app.host, "periodical",Date.now()],
-  								// endkey: ["os", app.host, "periodical", Date.now() - 5000],
+  								startkey: ["os", app.host, "periodical",Date.now() + 0],
+  								endkey: ["os", app.host, "periodical", Date.now() - 5000],
   								/**
   								 * pouchdb
   								 * */
-  								startkey: ["os", app.host, "periodical\ufff0"],
-  								endkey: ["os", app.host, "periodical"],
+  								// startkey: ["os", app.host, "periodical\ufff0"],
+  								// endkey: ["os", app.host, "periodical"],
   								/** **/
   								limit: 1,
   								descending: true,
@@ -184,7 +180,7 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		console.log('this.connect');
+		// console.log('this.connect');
 
 		try{
 			//this.os.api.get({uri: 'hostname'});
@@ -197,35 +193,6 @@ export default new Class({
         },
         this._first_connect.bind(this)
       );
-
-
-
-			// this.view({
-			// 	uri: 'dashboard',
-			// 	// id: 'sort/by_path',
-      //   args: [
-      //     'sort',
-      //     'by_path',
-      //     {
-      //       startkey: ["os", 'colo', "periodical",Date.now()],
-      //       endkey: ["os", 'colo', "periodical", Date.now() - 2000],
-      //       /**
-      //        * pouchdb
-      //        * */
-      //       // startkey: ["os", app.host, "periodical\ufff0"],
-      //       // endkey: ["os", app.host, "periodical"],
-      //       /** **/
-      //       limit: 1,
-      //       descending: true,
-      //       inclusive_end: true,
-      //       include_docs: true
-      //     }
-      //   ],
-      //
-			// }, function(err, resp){
-			// 	console.log('view', err);
-			// 	console.log('view', resp);
-			// })
 
 		}
 		catch(e){
