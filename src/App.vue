@@ -97,8 +97,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						host:'192.168.0.180',
-						// host:'127.0.0.1',
+						// host:'192.168.0.180',
+						host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,
@@ -115,10 +115,12 @@ pipelines.push(new Pipeline({
 	],
 	filters: [
 		function(doc, opts, next){
-			// console.log('test filter', doc);
+			console.log('test filter', doc.data.cpus);
 
 			let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
       let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
+
+      // let core = doc.data.cpus[0];//test
 
       Array.each(doc.data.cpus, function(core){
         Object.each(core.times, function(value, key){
@@ -197,21 +199,21 @@ export default {
 			self.mem.free = doc.freemem;
 		})
 
-    EventBus.$on('cpu', doc => {
-			//cpu times are acumulative, so there
-      if(doc.timestamp != self.cpu.timestamp){
-        console.log('recived doc via Event cpu', doc)
-        let time_diff = doc.timestamp - self.cpu.timestamp;
+    this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
 
+    EventBus.$on('cpu', doc => {
+      if(doc.total != self.cpu.total){
+
+        //use +0 to copy value, not Observer
+        this.prev_cpu.total = self.cpu.total + 0;
+        this.prev_cpu.idle = self.cpu.idle + 0;
+        this.prev_cpu.timestamp = self.cpu.timestamp + 0;
+
+  			self.cpu.total = doc.total;
+  			self.cpu.idle = doc.idle;
         self.cpu.timestamp = doc.timestamp;
 
-        //stress -> for i in 1 2 3 4; do while : ; do : ; done & done
-        
-        console.log('recived doc via Event cpu time_diff', time_diff )
-        console.log('recived doc via Event cpu', (doc.total - self.cpu.total) / time_diff)
-        console.log('recived doc via Event cpu', (doc.idle - self.cpu.idle) / time_diff)
-  			self.cpu.total = doc.total - self.cpu.total;
-  			self.cpu.idle = doc.idle - self.cpu.idle;
+
       }
 		})
 	},
@@ -230,14 +232,31 @@ export default {
 		},
     'cpu.total': function(val){
 			// console.log('cpu update')
+      console.log('recived doc via Event cpu', this.cpu)
+      console.log('recived doc via Event cpu', this.prev_cpu)
 
-			let percentage = 100
+      let diff_time = this.cpu.timestamp - this.prev_cpu.timestamp;
+      let diff_total = this.cpu.total - this.prev_cpu.total;
+      let diff_idle = this.cpu.idle - this.prev_cpu.idle;
 
-			if(this.cpu.total != 0)
-				percentage -= this.cpu.idle * 100 / this.cpu.total;
+      //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
+      let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / 10;
+      percentage = (percentage.toFixed(2) > 100) ? 100 : percentage.toFixed(2);
 
-			percentage = percentage.toFixed(1);
+      // console.log('cpu update', diff_time);
+      // console.log('cpu update', diff_total);
+      // console.log('cpu update', diff_idle);
 
+      console.log('cpu update', percentage);
+
+      //
+			// let percentage = 100
+      //
+			// if(this.cpu.total != 0)
+			// 	percentage -= this.cpu.idle * 100 / this.cpu.total;
+      //
+			// percentage = percentage.toFixed(1);
+      //
 			this.cpu.columns = { 'value': percentage };
 		}
 	},

@@ -26,13 +26,13 @@ export default new Class({
                 'sort',
                 'by_path',
                 {
-  								startkey: ["os", app.host, "periodical",Date.now()],
-  								endkey: ["os", app.host, "periodical", Date.now() - 5000],
+  								// startkey: ["os", app.host, "periodical",Date.now()],
+  								// endkey: ["os", app.host, "periodical", Date.now() - 5000],
   								/**
   								 * pouchdb
   								 * */
-  								// startkey: ["os", app.host, "periodical\ufff0"],
-  								// endkey: ["os", app.host, "periodical"],
+  								startkey: ["os", app.host, "periodical\ufff0"],
+  								endkey: ["os", app.host, "periodical"],
   								/** **/
   								limit: 1,
   								descending: true,
