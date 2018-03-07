@@ -29,7 +29,7 @@
 				default: () => ({ text: '' })
 			},
       series: {
-				type: [String, Array],
+				type: [String, Array, Object],
 				default: () => ([])
 			},
       columns: {
@@ -104,42 +104,79 @@
       //   this.line.title = val;
       // },
       series: function (val) {
-        //console.log('App series doc', val)
-        
+        console.log('App series doc', val)
+
 				if(typeof(val) == 'string')
 					val = JSON.parse(val)
 
 				this.loading = !this.loading;
-		
+
         // this.line.xAxis.data = this.format_timestamps(this.columns);
-        if(Array.isArray(val[0])){//means is not an array of data, but an array of series of data
-					
-					this.line.series = [];
-					
+        if(typeof(val[0]) == 'object'){//means is an array of series of data, or an array of "series" objects
+
+          this.line.series = [];
+
           Array.each(val, function(row, row_index){
-						
-						//console.log('App series row', row)
-						let index = row_index;
-						
-						Array.each(row, function(data, data_index){
-						
-							//console.log('App series data', data)	
-							
-							if(!this.line.series[data_index])
-								this.line.series[data_index] = JSON.parse(JSON.stringify(this.defaults.serie)) //dirty object cloning, no reference 
-								
-							
-							//console.log('App series data index', data_index)
-							//console.log('App series row index', index)
-							this.line.series[data_index].data[index] = data + 0;
-							
-						}.bind(this))
-						
+
+            // console.log('App series row', row)
+
+            let index = row_index;
+
+            if(Array.isArray(row)){//an array of series of data
+              Array.each(row, function(data, data_index){
+
+  							//console.log('App series data', data)
+
+  							if(!this.line.series[data_index])
+  								this.line.series[data_index] = JSON.parse(JSON.stringify(this.defaults.serie)) //dirty object cloning, no reference
+
+
+  							//console.log('App series data index', data_index)
+  							//console.log('App series row index', index)
+  							this.line.series[data_index].data[index] = data + 0;
+
+  						}.bind(this))
+            }
+            else{//an object compatible with "series"
+              // console.log('App series doc', row)
+
+              this.line.series.push(row)
+            }
+
           }.bind(this))
-          
-          //console.log('App series', this.line.series)
+
+          // if(Array.isArray(val[0])){
+          //
+  				// 	this.line.series = [];
+          //
+          //   Array.each(val, function(row, row_index){
+          //
+  				// 		//console.log('App series row', row)
+  				// 		let index = row_index;
+          //
+  				// 		Array.each(row, function(data, data_index){
+          //
+  				// 			//console.log('App series data', data)
+          //
+  				// 			if(!this.line.series[data_index])
+  				// 				this.line.series[data_index] = JSON.parse(JSON.stringify(this.defaults.serie)) //dirty object cloning, no reference
+          //
+          //
+  				// 			//console.log('App series data index', data_index)
+  				// 			//console.log('App series row index', index)
+  				// 			this.line.series[data_index].data[index] = data + 0;
+          //
+  				// 		}.bind(this))
+          //
+          //   }.bind(this))
+          //
+          //   //console.log('App series', this.line.series)
+          // }
+          // else{//assume is an object compatible with series format
+          //
+          // }
         }
-        else{
+        else{//means values are simple types likes int or strings
           if(!this.line.series[0])
             this.line.series.push(this.defaults.serie)
 
@@ -176,7 +213,7 @@
             hoverAnimation: false,
         }
       }
-      
+
       if(typeof(this.title) != 'object'){
         this.line.title = { text: this.title }
       }

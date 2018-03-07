@@ -1,10 +1,13 @@
 <template>
   <div>
       <!-- <router-view :columns="columns"/> -->
+      <div v-for="(iface, name) in networkInterfaces" :key="name">
+        <chart-line :title="name" :columns="timestamps" :series="[iface.recived.bytes, iface.transmited.bytes]"/>
+      </div>
       <chart-line title="Load" :columns="timestamps" :series="loadavg"/>
       <chart-line title="Uptime" :columns="timestamps" :series="uptime"/>
-       <gauge :columns="mem.columns"/> 
-       <gauge :columns="cpu.columns"/> 
+       <gauge :columns="mem.columns"/>
+       <gauge :columns="cpu.columns"/>
   </div>
 </template>
 
@@ -35,6 +38,7 @@ export default {
       timestamps: [],
       uptime: [],
       loadavg: [],
+      networkInterfaces: {},
 			mem: {
         columns: {'value': 0 },
         total: 0,
@@ -58,6 +62,56 @@ export default {
       self.timestamps.push( doc );
       self.timestamps = self.timestamps.slice(-this.seconds)
 
+		})
+
+    this.EventBus.$on('networkInterfaces', doc => {
+			console.log('recived doc via Event networkInterfaces', doc)
+
+      Object.each(doc, function(iface, name){
+        if(!self.networkInterfaces[name])
+          self.networkInterfaces[name] = {}
+
+        Object.each(iface, function(values, property){
+          if(!self.networkInterfaces[name][property])
+            self.networkInterfaces[name][property] = {}
+
+          if(property == 'recived' || property == 'transmited'){
+            Object.each(values, function(value, messure){
+              if(!self.networkInterfaces[name][property][messure]){
+                let template = {
+                    data: [],//rows
+                    type: 'line',
+                    smooth: true,
+                    showSymbol: true,
+                    hoverAnimation: false,
+                }
+
+                self.networkInterfaces[name][property][messure] = template
+              }
+
+              /**
+              * avoid "reactivity" of components, or it will end up with a lot of updates and values on .data
+              **/
+
+              let copy = JSON.parse(JSON.stringify(self.networkInterfaces[name][property][messure]))
+              copy.data[copy.data.length] = value
+              copy.data = copy.data.slice(-self.seconds)
+              self.networkInterfaces[name][property][messure] = copy
+              /**
+              *
+              **/
+            })
+          }
+          else{
+            self.networkInterfaces[name][property] = values
+          }
+        })
+
+      })
+      // self.networkInterfaces.data.push( doc );
+      // self.networkInterfaces.data = self.networkInterfaces.data.slice(-this.seconds)
+
+      console.log('self.networkInterfaces', self.networkInterfaces)
 		})
 
     this.EventBus.$on('loadavg', doc => {
