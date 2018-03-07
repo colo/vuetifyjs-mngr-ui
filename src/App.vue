@@ -24,8 +24,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						host:'192.168.0.180',
-						// host:'127.0.0.1',
+						// host:'192.168.0.180',
+						host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,
@@ -49,6 +49,7 @@ pipelines.push(new Pipeline({
       let cpu = { total: 0, idle: 0 };
       let timestamp = { timestamp: doc.metadata.timestamp };
       let uptime = {uptime: doc.data.uptime }
+			let loadavg = {loadavg: doc.data.loadavg }
       // let core = doc.data.cpus[0];//test
 
       Array.each(doc.data.cpus, function(core){
@@ -67,6 +68,7 @@ pipelines.push(new Pipeline({
       next(cpu);
       next(timestamp);
       next(uptime);
+			next(loadavg);
 		}
 	],
 	output: [
@@ -77,20 +79,21 @@ pipelines.push(new Pipeline({
 				// console.log(doc)
 				EventBus.$emit('mem', doc) //update mem widget
 			}
-
-      if(doc.idle){
+			else if(doc.idle){
         // console.log(doc)
 				EventBus.$emit('cpu', doc) //update cpu widget
 			}
-
-      if(doc.timestamp){
+			else if(doc.timestamp){
         // console.log(doc)
 				EventBus.$emit('timestamp', doc.timestamp) //update cpu widget
 			}
-
-      if(doc.uptime){
+			else if(doc.uptime){
         // console.log(doc)
 				EventBus.$emit('uptime', doc.uptime) //update cpu widget
+			}
+			else if(doc.loadavg){
+        // console.log(doc)
+				EventBus.$emit('loadavg', doc.loadavg) //update cpu widget
 			}
 		}
 	]

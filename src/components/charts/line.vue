@@ -18,12 +18,17 @@
   // import 'echarts/lib/component/title'
 
   export default {
+
     name: 'chart-line',
     components: {
       IEcharts
     },
     props: {
-      rows: {
+      title: {
+				type: [String, Object],
+				default: () => ({ text: '' })
+			},
+      series: {
 				type: [String, Array],
 				default: () => ([])
 			},
@@ -40,18 +45,36 @@
     data: () => ({
       loading: true,
       line: {
-        xAxis: {//columns
+        title: {
+            text: 'something'
+        },
+        // tooltip: {
+        //     trigger: 'axis',
+        //     formatter: function (params) {
+        //         params = params[0];
+        //         var date = new Date(params.name);
+        //         return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+        //     },
+        //     axisPointer: {
+        //         animation: false
+        //     }
+        // },
+        xAxis: {
             type: 'category',
-            data: []
+            // type: 'time',
+            splitLine: {
+                show: false
+            },
+            data: [] //columns
         },
         yAxis: {
-            type: 'value'
+            type: 'value',
+            // boundaryGap: [0, '100%'],
+            splitLine: {
+                show: false
+            }
         },
-        series: [{
-            data: [],//rows
-            type: 'line',
-            smooth: true
-        }]
+        series: []
 				// tooltip : {
 				// 		formatter: "{a} <br/>{b} : {c}%"
 				// },
@@ -72,14 +95,57 @@
 			}
     }),
     watch: {
-      rows: function (val) {
+      // title: function (val) {
+      //   console.log('App TITLE', val)
+      //
+      //   if(typeof(val) != 'object')
+      //     val = { text: val}
+      //
+      //   this.line.title = val;
+      // },
+      series: function (val) {
+        //console.log('App series doc', val)
+        
 				if(typeof(val) == 'string')
 					val = JSON.parse(val)
 
 				this.loading = !this.loading;
+		
+        // this.line.xAxis.data = this.format_timestamps(this.columns);
+        if(Array.isArray(val[0])){//means is not an array of data, but an array of series of data
+					
+					this.line.series = [];
+					
+          Array.each(val, function(row, row_index){
+						
+						//console.log('App series row', row)
+						let index = row_index;
+						
+						Array.each(row, function(data, data_index){
+						
+							//console.log('App series data', data)	
+							
+							if(!this.line.series[data_index])
+								this.line.series[data_index] = JSON.parse(JSON.stringify(this.defaults.serie)) //dirty object cloning, no reference 
+								
+							
+							//console.log('App series data index', data_index)
+							//console.log('App series row index', index)
+							this.line.series[data_index].data[index] = data + 0;
+							
+						}.bind(this))
+						
+          }.bind(this))
+          
+          //console.log('App series', this.line.series)
+        }
+        else{
+          if(!this.line.series[0])
+            this.line.series.push(this.defaults.serie)
 
-        this.line.series[0].data = val;
-        // console.log('App rows', this.line.series[0].data)
+  		     this.line.series[0].data = val;
+        }
+
 
 			},
 			columns: function (val) {
@@ -101,18 +167,35 @@
 			// },
 		},
 		mounted () {
+			this.defaults = {
+        serie: {
+            data: [],//rows
+            type: 'line',
+            smooth: true,
+            showSymbol: true,
+            hoverAnimation: false,
+        }
+      }
+      
+      if(typeof(this.title) != 'object'){
+        this.line.title = { text: this.title }
+      }
+      else{
+        this.line.title = { text: this.title }
+      }
 
-      if(typeof(this.columns) == 'string')
-				this.columns = JSON.parse(this.columns)
+      // if(typeof(this.columns) == 'string')
+			// 	this.columns = JSON.parse(this.columns)
 
-      if(typeof(this.rows) == 'string')
-				this.rows = JSON.parse(this.rows)
-			// // console.log(this.columns)
-
-      // this.columns = this.format_timestamps(this.columns)
+      // if(typeof(this.series) == 'string')
+			// 	this.series = JSON.parse(this.series)
 
       // this.line.xAxis.data = this.format_timestamps(this.columns);
-			this.line.series[0].data = this.rows;
+      // if(Array.isArray(this.series[0])){//means is not an array of data, but an array of series of metadata
+      // }
+      // else{
+		  //    this.line.series[0].data = this.series;
+      // }
 
 
     },

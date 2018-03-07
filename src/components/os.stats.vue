@@ -1,9 +1,10 @@
 <template>
   <div>
       <!-- <router-view :columns="columns"/> -->
-      <chart-line :columns="timestamps" :rows="uptime"/>
-      <gauge :columns="mem.columns"/>
-      <gauge :columns="cpu.columns"/>
+      <chart-line title="Load" :columns="timestamps" :series="loadavg"/>
+      <chart-line title="Uptime" :columns="timestamps" :series="uptime"/>
+       <gauge :columns="mem.columns"/> 
+       <gauge :columns="cpu.columns"/> 
   </div>
 </template>
 
@@ -27,12 +28,13 @@ export default {
   },
   data () {
     return {
-      seconds: 60, //define the N timestamps to show, current minute graphs
+      seconds: 10, //define the N timestamps to show
 			/**
 			* mem
 			*/
       timestamps: [],
       uptime: [],
+      loadavg: [],
 			mem: {
         columns: {'value': 0 },
         total: 0,
@@ -52,14 +54,22 @@ export default {
     let self = this;
 
     this.EventBus.$on('timestamp', doc => {
-			console.log('recived doc via Event mem', doc)
+			// console.log('recived doc via Event timestamp', doc)
       self.timestamps.push( doc );
       self.timestamps = self.timestamps.slice(-this.seconds)
 
 		})
 
+    this.EventBus.$on('loadavg', doc => {
+			console.log('recived doc via Event loadavg', doc)
+
+      self.loadavg.push( doc );
+      self.loadavg = self.loadavg.slice(-this.seconds)
+
+		})
+
     this.EventBus.$on('uptime', doc => {
-			console.log('recived doc via Event mem', doc)
+			console.log('recived doc via Event uptime', doc)
 
       self.uptime.push( doc );
       self.uptime = self.uptime.slice(-this.seconds)
