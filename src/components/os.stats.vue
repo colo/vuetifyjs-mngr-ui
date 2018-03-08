@@ -2,7 +2,11 @@
   <div>
       <!-- <router-view :columns="columns"/> -->
       <div v-for="(iface, name) in networkInterfaces" :key="name">
-        <chart-line :title="name" :columns="timestamps" :series="[iface.recived.bytes, iface.transmited.bytes]"/>
+        <chart-rainfall-waterfall
+          :title="name"
+          :columns="timestamps"
+          :series="[iface.recived.bytes.serie, iface.transmited.bytes.serie]"
+        />
       </div>
       <chart-line title="Load" :columns="timestamps" :series="loadavg"/>
       <chart-line title="Uptime" :columns="timestamps" :series="uptime"/>
@@ -15,10 +19,15 @@
 
 import gauge from '@/components/charts/gauge'
 import chartLine from '@/components/charts/line'
+import chartRainfallWaterfall from '@/components/charts/rainfall.waterfall'
 
 export default {
   name: 'osstats',
-  components: { gauge, chartLine },
+  components: {
+    gauge,
+    chartLine,
+    chartRainfallWaterfall
+  },
   props: {
     EventBus: {
       type: [Object],
@@ -79,11 +88,16 @@ export default {
             Object.each(values, function(value, messure){
               if(!self.networkInterfaces[name][property][messure]){
                 let template = {
+                  prev: 0,
+                  serie: {
                     data: [],//rows
                     type: 'line',
                     smooth: true,
                     showSymbol: true,
                     hoverAnimation: false,
+                    xAxisIndex: (property == 'transmited') ? 1 : 0,
+                    yAxisIndex: (property == 'transmited') ? 1 : 0,
+                  }
                 }
 
                 self.networkInterfaces[name][property][messure] = template
@@ -94,8 +108,16 @@ export default {
               **/
 
               let copy = JSON.parse(JSON.stringify(self.networkInterfaces[name][property][messure]))
-              copy.data[copy.data.length] = value
-              copy.data = copy.data.slice(-self.seconds)
+
+              //send difference from prev to current
+              let data = value - copy.prev
+              copy.prev = value
+              if(messure == 'bytes')//send KB
+                data = data / 1024
+                
+              copy.serie.data[copy.serie.data.length] = data
+
+              copy.serie.data = copy.serie.data.slice(-self.seconds)
               self.networkInterfaces[name][property][messure] = copy
               /**
               *
