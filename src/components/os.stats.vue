@@ -7,6 +7,11 @@
           :columns="timestamps"
           :series="[iface.recived.bytes.serie, iface.transmited.bytes.serie]"
         />
+        <chart-rainfall-waterfall
+          :title="name"
+          :columns="timestamps"
+          :series="[iface.recived.packets.serie, iface.transmited.packets.serie]"
+        />
       </div>
       <chart-line title="Load" :columns="timestamps" :series="loadavg"/>
       <chart-line title="Uptime" :columns="timestamps" :series="uptime"/>
@@ -114,7 +119,7 @@ export default {
               copy.prev = value
               if(messure == 'bytes')//send KB
                 data = data / 1024
-                
+
               copy.serie.data[copy.serie.data.length] = data
 
               copy.serie.data = copy.serie.data.slice(-self.seconds)
