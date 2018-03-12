@@ -1,0 +1,23 @@
+{
+  "cpu":{
+    "class": "cpu",
+    "option":{
+        "tooltip" : {
+            "formatter": "{a} <br/>{b} : {c}%"
+        },
+        "toolbox": {
+            "feature": {
+                "restore": {},
+                "saveAsImage": {}
+            }
+        },
+        "series": [
+            {
+                "type": "gauge",
+                "detail": "{formatter:'{value}%'}",
+                "data": []
+            }
+        ]
+    }
+  }
+}

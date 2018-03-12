@@ -1,7 +1,7 @@
 <template>
   <div>
       <!-- <router-view :columns="columns"/> -->
-      <div v-for="(iface, name) in networkInterfaces" :key="name">
+      <!-- <div v-for="(iface, name) in networkInterfaces" :key="name">
         <chart-rainfall-waterfall
           :title="name"
           :columns="timestamps"
@@ -16,22 +16,32 @@
       <chart-line title="Load" :columns="timestamps" :series="loadavg"/>
       <chart-line title="Uptime" :columns="timestamps" :series="uptime"/>
        <gauge :columns="mem.columns"/>
-       <gauge :columns="cpu.columns"/>
+       <gauge :columns="cpu.columns"/> -->
+       <div v-for="(stat, name) in $options.stats" :key="name" :class="stat.class">
+         <IEcharts
+           :option="stat.option"
+         />
+       </div>
   </div>
 </template>
 
 <script>
 
-import gauge from '@/components/charts/gauge'
-import chartLine from '@/components/charts/line'
-import chartRainfallWaterfall from '@/components/charts/rainfall.waterfall'
+import IEcharts from 'vue-echarts-v3/src/full.js';
+import stats from './json/os.stats.json'
+
+// import gauge from '@/components/charts/gauge'
+// import chartLine from '@/components/charts/line'
+// import chartRainfallWaterfall from '@/components/charts/rainfall.waterfall'
 
 export default {
+  stats: stats,
   name: 'osstats',
   components: {
-    gauge,
-    chartLine,
-    chartRainfallWaterfall
+    // gauge,
+    // chartLine,
+    // chartRainfallWaterfall
+    IEcharts
   },
   props: {
     EventBus: {
@@ -216,3 +226,10 @@ export default {
   name: 'App'
 }
 </script>
+
+<style scoped>
+  .cpu{
+    width: 400px;
+    height: 400px;
+  }
+</style>

@@ -19,12 +19,12 @@
     name: 'chart-line',
     mixins: [lineMixin]
   };
-  
+
 </script>
 
 <style scoped>
   .echarts {
-    width: 800px;
+    width: '80%';
     height: 300px;
   }
 </style>

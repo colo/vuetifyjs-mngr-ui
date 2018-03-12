@@ -51,7 +51,13 @@ export default {
       },
       series: []
 
-		}
+		},
+    // timeline: {
+    //   width: '80%',
+    // },
+    dataRange: {
+      itemWidth: 60
+    }
   }),
   watch: {
     series: function (val) {
