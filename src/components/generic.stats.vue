@@ -36,19 +36,21 @@
           </div>
          </template>
        </template> -->
-       <template v-for="(stat, iface) in networkInterfaces"><!-- each iface has stats  -->
-         <template v-for="(prop_value, property) in iface"><!-- stats maybe "recived" | "transmited" -->
-           <template v-for="(messure_value, messure) in prop_value"><!--  those maybe "packets" | "bytes" -->
+
+       <!-- each iface has stats  -->
+       <!-- <template v-for="(stat, iface) in networkInterfaces">
+         <template v-for="(prop_value, property) in iface">
+           <template v-for="(messure_value, messure) in prop_value">
              <div v-if="property != 'if'"
               :key="iface+'-'+property+'-'+messure"
               :class="$options.net_stats.class">
                <IEcharts
-                 :option="iface.option"
+                 :option="messure_value.option"
                />
              </div>
           </template>
          </template>
-      </template>
+      </template> -->
 
        <div v-for="(stat, name) in stats" :key="name" :class="stat.class">
          <IEcharts
@@ -94,7 +96,7 @@ export default {
   data () {
     return {
       stats: stats,
-      seconds: 61, //define the N timestamps to show
+      seconds: 10, //define the N timestamps to show
 			/**
 			* mem
 			*/
@@ -103,6 +105,7 @@ export default {
       uptime: [],
       // loadavg: [],
       networkInterfaces: {},
+      networkInterfaces_series: {},
 			// mem: {
       //   columns: {'value': 0 },
       //   total: 0,
@@ -136,41 +139,64 @@ export default {
       Object.each(doc, function(iface, name){
         if(!self.networkInterfaces[name]){
           // self.networkInterfaces[name] = {}
-          self.$set(self.networkInterfaces, name, { option: self.$options.net_stats }) //copy the net_stats template
+          self.$set(self.networkInterfaces, name, {})
+          self.$set(self.networkInterfaces_series, name, {})
         }
 
-        Object.each(iface, function(values, property){
-          if(!self.networkInterfaces[name][property]){
-            // self.networkInterfaces[name][property] = {}
-            self.$set(self.networkInterfaces[name], property, {})
-          }
 
+        Object.each(iface, function(values, property){// "recived" | "transmited"
+          // if(!self.networkInterfaces[name][property]){
+          //   // self.networkInterfaces[name][property] = {}
+          //   self.$set(self.networkInterfaces[name], property, {})
+          // }
+
+          /**
+          * turn data property->messure (ex: transmited { bytes: .. }),
+          * to: messure->property (ex: bytes {trasmited:.., recived: ... })
+          **/
+
+          let index = 0 //index used for "option.series[index]"
           if(property == 'recived' || property == 'transmited'){
-            Object.each(values, function(value, messure){
-              if(!self.networkInterfaces[name][property][messure]){
-                // let template = {
-                //   prev: 0,
-                //   values: [],
-                //   // serie: {
-                //   //   data: [],//rows
-                //   //   type: 'line',
-                //   //   smooth: true,
-                //   //   showSymbol: true,
-                //   //   hoverAnimation: false,
-                //   //   xAxisIndex: (property == 'transmited') ? 1 : 0,
-                //   //   yAxisIndex: (property == 'transmited') ? 1 : 0,
-                //   // }
-                // }
 
-                // self.networkInterfaces[name][property][messure] = template
-                self.$set(self.networkInterfaces[name][property], messure, {prev: 0, values: []})
+
+            Object.each(values, function(value, messure){// "bytes" | "packets"
+              if(!self.networkInterfaces[name][messure]){
+                // self.$set(self.networkInterfaces[name], messure, { option: self.$options.net_stats.option } )
+                self.networkInterfaces[name][messure] = { }
+                self.networkInterfaces_series[name][messure] = { option: self.$options.net_stats.option }
               }
+
+              self.networkInterfaces_series[name][messure].option.xAxis.data = self.formated_timestamps
+              // self.networkInterfaces[name][messure].option.series[index].data = []
+
+              if(!self.networkInterfaces[name][messure][property]){
+                // self.$set(self.networkInterfaces[name][messure], property, {prev: 0, values: []})
+                self.networkInterfaces[name][messure][property] = {prev: 0, values: []}
+              }
+              // if(!self.networkInterfaces[name][property][messure]){
+              //   // let template = {
+              //   //   prev: 0,
+              //   //   values: [],
+              //   //   // serie: {
+              //   //   //   data: [],//rows
+              //   //   //   type: 'line',
+              //   //   //   smooth: true,
+              //   //   //   showSymbol: true,
+              //   //   //   hoverAnimation: false,
+              //   //   //   xAxisIndex: (property == 'transmited') ? 1 : 0,
+              //   //   //   yAxisIndex: (property == 'transmited') ? 1 : 0,
+              //   //   // }
+              //   // }
+              //
+              //   // self.networkInterfaces[name][property][messure] = template
+              //   self.$set(self.networkInterfaces[name][property], messure, {prev: 0, values: [], option: { option: self.$options.net_stats.option } })
+              // }
 
               /**
               * avoid "reactivity" of components, or it will end up with a lot of updates and values on .data
               **/
 
-              let copy = JSON.parse(JSON.stringify(self.networkInterfaces[name][property][messure]))
+              let copy = JSON.parse(JSON.stringify(self.networkInterfaces[name][messure][property]))
 
               //send difference from prev to current
               let data = value - copy.prev
@@ -181,25 +207,70 @@ export default {
               copy.values[copy.values.length] = data
 
               copy.values = copy.values.slice(-self.seconds)
-              self.networkInterfaces[name][property][messure] = copy
+              self.networkInterfaces[name][messure][property] = copy
+
+              self.networkInterfaces_series[name][messure].option.series[index].data.push(data)
+
               /**
               *
               **/
+
             })
+
+            // Object.each()
+
+            index++
+
           }
           else{
-            self.networkInterfaces[name][property] = values
+            // if(!self.networkInterfaces[name][property]){
+            //   // self.networkInterfaces[name][property] = {}
+            //   self.$set(self.networkInterfaces[name], property, {})
+            // }
+            // self.networkInterfaces[name][property] = values
           }
+
+
         })
 
-        self.networkInterfaces[name].option.xAxis.data = self.formated_timestamps;
+        // self.networkInterfaces[name].option.xAxis.data = self.formated_timestamps;
       })
       // self.networkInterfaces.data.push( doc );
       // self.networkInterfaces.data = self.networkInterfaces.data.slice(-this.seconds)
 
       // self.stats.loadavg.option.xAxis.data = this.formated_timestamps; //columns
 
+      // Object.each(self.networkInterfaces, function(stats, name){
+      //   stats = JSON.parse(JSON.stringify(stats))//avoid reactivity
+      //   Object.each(stats, function(value, messure){
+      //     let index = 0 //index used for "option.series[index]"
+      //     self.networkInterfaces[name][messure].option.series[index].data = []
+      //     Object.each(value, function(data, property){
+      //       if(property == 'recived' || property == 'transmited'){
+      //         // console.log(messure)
+      //         // console.log(property)
+      //         // console.log(index)
+      //         // // console.log(self.networkInterfaces[name][messure].option.series[index])
+      //         // console.log(JSON.parse(JSON.stringify(data)))
+      //         // let serie = JSON.parse(JSON.stringify( self.networkInterfaces[name][messure].option.series[index] ))
+      //         // serie.data = JSON.parse(JSON.stringify(data.values))
+      //         // self.networkInterfaces[name][messure].option.series[index] = serie
+      //         // // self.networkInterfaces[name][messure].option.series[index].data = JSON.parse(JSON.stringify(data)).values
+      //         Array.each(data.values, function(serie_value){
+      //           self.networkInterfaces[name][messure].option.series[index].data.push(serie_value + 0)
+      //         })
+      //         self.networkInterfaces[name][messure].option.series[index].data = self.networkInterfaces[name][messure].option.series[index].data.slice(-self.seconds)
+      //
+      //         index++
+      //       }
+      //     })
+      //
+      //   })
+      // })
+
+
       console.log('self.networkInterfaces', self.networkInterfaces)
+      console.log('self.networkInterfaces', self.networkInterfaces_series)
 		})
 
 
@@ -275,6 +346,8 @@ export default {
 		})
 	},
   watch: {
+    networkInterfaces: function(val){
+    },
 		// 'mem.free': function(val){
 		// 	// console.log('freemem update')
     //

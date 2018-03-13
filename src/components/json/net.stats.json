@@ -49,6 +49,25 @@
         "inverse": true
       }
     ],
-    "series": []
+    "series": [
+      {
+          "type": "line",
+          "smooth": true,
+          "showSymbol": true,
+          "hoverAnimation": false,
+          "xAxisIndex": 0,
+          "yAxisIndex": 0,
+          "data": []
+      },
+      {
+          "type": "line",
+          "smooth": true,
+          "showSymbol": true,
+          "hoverAnimation": false,
+          "xAxisIndex": 1,
+          "yAxisIndex": 1,
+          "data": []
+      }
+    ]
   }
 }
