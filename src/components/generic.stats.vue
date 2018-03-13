@@ -105,7 +105,7 @@ export default {
       uptime: [],
       // loadavg: [],
       networkInterfaces: {},
-      networkInterfaces_series: {},
+      // networkInterfaces_series: {},
 			// mem: {
       //   columns: {'value': 0 },
       //   total: 0,
@@ -140,7 +140,7 @@ export default {
         if(!self.networkInterfaces[name]){
           // self.networkInterfaces[name] = {}
           self.$set(self.networkInterfaces, name, {})
-          self.$set(self.networkInterfaces_series, name, {})
+          // self.$set(self.networkInterfaces_series, name, {})
         }
 
 
@@ -161,12 +161,12 @@ export default {
 
             Object.each(values, function(value, messure){// "bytes" | "packets"
               if(!self.networkInterfaces[name][messure]){
-                // self.$set(self.networkInterfaces[name], messure, { option: self.$options.net_stats.option } )
-                self.networkInterfaces[name][messure] = { }
-                self.networkInterfaces_series[name][messure] = { option: self.$options.net_stats.option }
+                self.$set(self.networkInterfaces[name], messure, { option: self.$options.net_stats.option } )
+                // self.networkInterfaces[name][messure] =  { option: self.$options.net_stats.option }
+                // self.networkInterfaces_series[name][messure] = { option: self.$options.net_stats.option }
               }
 
-              self.networkInterfaces_series[name][messure].option.xAxis.data = self.formated_timestamps
+              // self.networkInterfaces_series[name][messure].option.xAxis.data = self.formated_timestamps
               // self.networkInterfaces[name][messure].option.series[index].data = []
 
               if(!self.networkInterfaces[name][messure][property]){
@@ -196,20 +196,32 @@ export default {
               * avoid "reactivity" of components, or it will end up with a lot of updates and values on .data
               **/
 
-              let copy = JSON.parse(JSON.stringify(self.networkInterfaces[name][messure][property]))
+              // let copy = JSON.parse(JSON.stringify(self.networkInterfaces[name][messure][property]))
+              //
+              // //send difference from prev to current
+              // let data = value - copy.prev
+              // copy.prev = value
+              // if(messure == 'bytes')//send KB
+              //   data = data / 1024
+              //
+              // copy.values[copy.values.length] = data
+              //
+              // copy.values = copy.values.slice(-self.seconds)
+              // self.networkInterfaces[name][messure][property] = copy
+              //
+              // // self.networkInterfaces_series[name][messure].option.series[index].data.push(data)
 
-              //send difference from prev to current
-              let data = value - copy.prev
-              copy.prev = value
+              let copy = self.networkInterfaces[name][messure].option.series[index]
+              let data = value - JSON.parse(JSON.stringify(self.networkInterfaces[name][messure][property].prev))
+              self.networkInterfaces[name][messure][property].prev = value
+
               if(messure == 'bytes')//send KB
                 data = data / 1024
 
-              copy.values[copy.values.length] = data
-
-              copy.values = copy.values.slice(-self.seconds)
-              self.networkInterfaces[name][messure][property] = copy
-
-              self.networkInterfaces_series[name][messure].option.series[index].data.push(data)
+              copy.data[copy.data.length] = data
+              // copy.push(data)
+              copy.data = copy.data.slice(-self.seconds)
+              self.networkInterfaces[name][messure].option.series[index] = copy
 
               /**
               *
@@ -217,7 +229,9 @@ export default {
 
             })
 
-            // Object.each()
+            // Object.each(values, function(value, messure){
+            //   self.networkInterfaces_series[name][messure].option.series[index].data = self.networkInterfaces[name][messure][property].values
+            // })
 
             index++
 
@@ -270,7 +284,7 @@ export default {
 
 
       console.log('self.networkInterfaces', self.networkInterfaces)
-      console.log('self.networkInterfaces', self.networkInterfaces_series)
+      // console.log('self.networkInterfaces', self.networkInterfaces_series)
 		})
 
 
