@@ -65,7 +65,7 @@
     "series": [
       {
           "type": "line",
-          "smooth": true,
+          "smooth": false,
           "showSymbol": true,
           "hoverAnimation": false,
           "xAxisIndex": 0,
@@ -74,7 +74,7 @@
       },
       {
           "type": "line",
-          "smooth": true,
+          "smooth": false,
           "showSymbol": true,
           "hoverAnimation": false,
           "xAxisIndex": 1,
