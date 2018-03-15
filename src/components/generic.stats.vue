@@ -1,46 +1,11 @@
 <template>
   <div>
-      <!-- <router-view :columns="columns"/> -->
-      <!-- <div v-for="(iface, name) in networkInterfaces" :key="name">
-        <chart-rainfall-waterfall
-          :title="name"
-          :columns="timestamps"
-          :series="[iface.recived.bytes.serie, iface.transmited.bytes.serie]"
-        />
-        <chart-rainfall-waterfall
-          :title="name"
-          :columns="timestamps"
-          :series="[iface.recived.packets.serie, iface.transmited.packets.serie]"
-        />
-      </div>
-      <chart-line title="Load" :columns="timestamps" :series="loadavg"/>
-      <chart-line title="Uptime" :columns="timestamps" :series="uptime"/>
-       <gauge :columns="mem.columns"/>
-       <gauge :columns="cpu.columns"/> -->
-       <!-- <div v-for="(stat, name) in $options.stats" :key="name" :class="stat.class"> -->
-       <!-- <template v-for="(stat, name) in stats">
-         <template v-if="stat.length">
-           <div v-for="(internalstat, index) in stat"
-           :key="name + '-'+ index"
-           :class="internalstat.class"
-           >
-             <IEcharts :option="internalstat.option"
-             />
-           </div>
-         </template>
-         <template v-else>
-           <div :key="name" :class="stat.class">
-           <IEcharts
-             :option="stat.option"
-           />
-          </div>
-         </template>
-       </template> -->
+
 
        <!-- each iface has stats  -->
-       <template v-for="(stat, iface) in networkInterfaces_stats">
+       <!-- <template v-for="(stat, iface) in networkInterfaces_stats"> -->
          <!-- each stat is an "option" obj, for eChart  -->
-         <!-- <template v-if="iface == 'brkvm'"> -->
+         <!-- <template v-if="iface == 'lo'">
          <div
           v-for="(option, messure) in stat"
           v-if="messure == 'bytes' || messure == 'packets'"
@@ -51,14 +16,14 @@
              :option="option"
            />
         </div>
-      <!-- </template> -->
       </template>
+      </template> -->
 
-       <div v-for="(stat, name) in stats" :key="name" :class="stat.class">
-         <IEcharts
-           :option="stat.option"
-         />
-      </div>
+     <div v-for="(stat, name) in stats" :key="name" :class="stat.class">
+       <IEcharts
+         :option="stat.option"
+       />
+     </div>
 
   </div>
 </template>
@@ -158,15 +123,20 @@ export default {
 
       // self.stats.loadavg.option.xAxis.data = self.format_timestamps(self.timestamps);
 
-      //three series of data, each for a load messure
-      Array.each(doc, function (load, index) {
-        let data = JSON.parse(JSON.stringify(self.stats.loadavg.option.series[index].data))
-        data.push({ 'value': load });
-        self.stats.loadavg.option.series[index].data = data.slice(-self.seconds)
-      })
+      /**
+      * UI
+      **/
+      if(self.stats.loadavg){
+        //three series of data, each for a load messure
+        Array.each(doc, function (load, index) {
+          let data = JSON.parse(JSON.stringify(self.stats.loadavg.option.series[index].data))
+          data.push({ 'value': load });
+          self.stats.loadavg.option.series[index].data = data.slice(-self.seconds)
+        })
 
-      self.stats.loadavg.option.xAxis.data = this.formated_timestamps; //columns
-      // //console.log('---loadavg---',self.stats.loadavg.option.series)
+        self.stats.loadavg.option.xAxis.data = this.formated_timestamps; //columns
+        // //console.log('---loadavg---',self.stats.loadavg.option.series)
+      }
 		})
 
     this.EventBus.$on('uptime', doc => {
@@ -175,11 +145,16 @@ export default {
       // self.uptime.push( doc );
       // self.uptime = self.uptime.slice(-this.seconds)
 
-      let data = JSON.parse(JSON.stringify(self.stats.uptime.option.series[0].data))
-      data.push({ 'value': doc });
-      self.stats.uptime.option.series[0].data = data.slice(-self.seconds)
+      /**
+      * UI
+      **/
+      if(self.stats.uptime){
+        let data = JSON.parse(JSON.stringify(self.stats.uptime.option.series[0].data))
+        data.push({ 'value': doc });
 
-      self.stats.uptime.option.xAxis.data = this.formated_timestamps; //columns
+        self.stats.uptime.option.series[0].data = data.slice(-self.seconds)
+        self.stats.uptime.option.xAxis.data = this.formated_timestamps; //columns
+      }
 		})
 
 		this.EventBus.$on('mem', doc => {
@@ -198,7 +173,11 @@ export default {
 
 			percentage = percentage.toFixed(1);
 
-      self.stats.mem.option.series[0].data = [{ 'value': percentage }]
+      /**
+      * UI
+      **/
+      if(self.stats.mem)
+        self.stats.mem.option.series[0].data = [{ 'value': percentage }]
 
 		})
 
@@ -332,12 +311,21 @@ export default {
       * old method
       * this.cpu.columns = { 'value': percentage };
       **/
-			this.stats.cpu.option.series[0].data = [{ 'value': percentage }]
+
+      if(this.stats.cpu)//UI
+		    this.stats.cpu.option.series[0].data = [{ 'value': percentage }]
 		},
     timestamps: function (val){
+      // this.formated_timestamps.push('')
       this.formated_timestamps = this.format_timestamps(this.timestamps)
     }
 	},
+  // computed: {
+  //   formated_timestamps: function () {
+  //     return this.format_timestamps(this.timestamps)
+  //   }
+  // },
+
   methods: {
     format_timestamps(timestamps){
 

@@ -41,10 +41,10 @@ export default new Class({
 				}
 				//{
 					//view: function(req, next, app){
-						//console.log('---periodical')
+						////console.log('---periodical')
 
 							//let cb = next.pass(
-								////console.log('---next')
+								//////console.log('---next')
 								//app.view({//get doc by host->last.timestamp (descending = true, and reversed star/end keys)
 									//uri: 'dashboard',
 									//id: 'sort/by_path',
@@ -70,9 +70,9 @@ export default new Class({
 				//}
 				//{
 					//view: function(req, next, app){//wrap it on a func, so we can call "this", as "app"
-						//console.log('---periodical')
+						////console.log('---periodical')
 						//let cb = next.pass(
-							////console.log('---next')
+							//////console.log('---next')
 							//app.view({
 								//uri: 'dashboard/_design/sort/_view/by_path',
 								//headers: {
@@ -136,36 +136,36 @@ export default new Class({
   },
 
   sort_by_path: function(err, resp){
-		// console.log('this.sort_by_path %o', resp);
+		// //console.log('this.sort_by_path %o', resp);
 
 		if(err){
-			console.log('this.sort_by_path error %o', err);
+			//console.log('this.sort_by_path error %o', err);
 
 		}
 		else{
 			//let result = JSON.decode(resp.body)
 
-			console.log('this.get result %o', resp);
+			//console.log('this.get result %o', resp);
 
       if(resp.rows[0]){
 				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
 
 				// for (var key in resp.rows[0].doc.data) {
-				// 	console.log(key);
+				// 	//console.log(key);
         //   if(key == 'cpus')
-        //     console.log(resp.rows[0].doc.data['cpus'])
+        //     //console.log(resp.rows[0].doc.data['cpus'])
 				// }
 			}
 		}
   },
   request: function(err, resp){
-		// console.log('this.info %o', resp);
+		// //console.log('this.info %o', resp);
 
-		//console.log('---INFO RESP---');
+		////console.log('---INFO RESP---');
 		//this.get({uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
-		//console.log(resp);
+		////console.log(resp);
 		if(err){
-			console.log('this.info error %o', err);
+			//console.log('this.info error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
 	},
@@ -180,7 +180,7 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		// console.log('this.connect');
+		// //console.log('this.connect');
 
 		try{
 			//this.os.api.get({uri: 'hostname'});
@@ -196,11 +196,11 @@ export default new Class({
 
 		}
 		catch(e){
-			console.log(e);
+			//console.log(e);
 		}
 	},
 	_first_connect: function(err, result, body, opts){
-		// console.log('first_connect %o', result.uuid);
+		// //console.log('first_connect %o', result.uuid);
 		this.options.id = result.uuid;//set ID
 
 	}

@@ -1,0 +1,122 @@
+{
+  "uptime": {
+    "class": "line",
+    "option": {
+      "title": {
+          "text": "Uptime"
+      },
+      "xAxis": {
+          "type": "category",
+          "splitLine": {
+              "show": false
+          },
+          "data": []
+      },
+      "yAxis": {
+          "type": "value",
+          "splitLine": {
+              "show": false
+          }
+      },
+      "series": [
+        {
+          "type": "line",
+          "smooth": true,
+          "showSymbol": true,
+          "hoverAnimation": false,
+          "data": []
+        }
+      ]
+
+		}
+  },
+  "loadavg": {
+    "class": "line",
+    "option": {
+      "title": {
+          "text": "Loadavg"
+      },
+      "xAxis": {
+          "type": "category",
+          "splitLine": {
+              "show": false
+          },
+          "data": []
+      },
+      "yAxis": {
+          "type": "value",
+          "splitLine": {
+              "show": false
+          }
+      },
+      "series": [
+        {
+          "type": "line",
+          "smooth": true,
+          "showSymbol": true,
+          "hoverAnimation": false,
+          "data": []
+        },
+        {
+          "type": "line",
+          "smooth": true,
+          "showSymbol": true,
+          "hoverAnimation": false,
+          "data": []
+        },
+        {
+          "type": "line",
+          "smooth": true,
+          "showSymbol": true,
+          "hoverAnimation": false,
+          "data": []
+        }
+      ]
+
+		}
+  },
+  "cpu":{
+    "class": "gauge",
+    "option":{
+        "tooltip" : {
+            "formatter": "{a} <br/>{b} : {c}%"
+        },
+        "toolbox": {
+            "feature": {
+                "restore": {},
+                "saveAsImage": {}
+            }
+        },
+        "series": [
+            {
+                "name": "CPU",
+                "type": "gauge",
+                "detail": "{formatter:'{value}%'}",
+                "data": []
+            }
+        ]
+    }
+  },
+  "mem":{
+    "class": "gauge",
+    "option":{
+        "tooltip" : {
+            "formatter": "{a} <br/>{b} : {c}%"
+        },
+        "toolbox": {
+            "feature": {
+                "restore": {},
+                "saveAsImage": {}
+            }
+        },
+        "series": [
+            {
+                "name": "Memory",
+                "type": "gauge",
+                "detail": "{formatter:'{value}%'}",
+                "data": []
+            }
+        ]
+    }
+  }
+}
