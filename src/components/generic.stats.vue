@@ -3,9 +3,9 @@
 
 
        <!-- each iface has stats  -->
-       <!-- <template v-for="(stat, iface) in networkInterfaces_stats"> -->
+       <template v-for="(stat, iface) in networkInterfaces_stats">
          <!-- each stat is an "option" obj, for eChart  -->
-         <!-- <template v-if="iface == 'lo'">
+         <!-- <template v-if="iface == 'lo'"> -->
          <div
           v-for="(option, messure) in stat"
           v-if="messure == 'bytes' || messure == 'packets'"
@@ -17,7 +17,7 @@
            />
         </div>
       </template>
-      </template> -->
+      <!-- </template> -->
 
      <div v-for="(stat, name) in stats" :key="name" :class="stat.class">
        <IEcharts
@@ -98,7 +98,12 @@ export default {
     this.EventBus.$on('timestamp', doc => {
 			// //console.log('recived doc via Event timestamp', doc)
       self.timestamps.push( doc );
-      self.timestamps = self.timestamps.slice(-self.seconds)
+      // self.timestamps = self.timestamps.slice(-self.seconds)
+      let length = self.timestamps.length
+      self.timestamps.splice(
+        -self.seconds -1,
+        length - self.seconds
+      )
 
 		})
 
@@ -129,9 +134,17 @@ export default {
       if(self.stats.loadavg){
         //three series of data, each for a load messure
         Array.each(doc, function (load, index) {
-          let data = JSON.parse(JSON.stringify(self.stats.loadavg.option.series[index].data))
-          data.push({ 'value': load });
-          self.stats.loadavg.option.series[index].data = data.slice(-self.seconds)
+          // let data = JSON.parse(JSON.stringify(self.stats.loadavg.option.series[index].data))
+          // data.push({ 'value': load });
+          // self.stats.loadavg.option.series[index].data = data.slice(-self.seconds)
+          let data = self.stats.loadavg.option.series[index].data
+          data.push({ 'value': load })
+
+          let length = data.length
+          self.stats.loadavg.option.series[index].data.splice(
+            -self.seconds -1,
+            length - self.seconds
+          )
         })
 
         self.stats.loadavg.option.xAxis.data = this.formated_timestamps; //columns
@@ -149,16 +162,28 @@ export default {
       * UI
       **/
       if(self.stats.uptime){
-        let data = JSON.parse(JSON.stringify(self.stats.uptime.option.series[0].data))
-        data.push({ 'value': doc });
+        // let data = JSON.parse(JSON.stringify(self.stats.uptime.option.series[0].data))
+        // data.push({ 'value': doc });
+        let data = self.stats.uptime.option.series[0].data
+        data.push({ 'value': doc })
 
-        self.stats.uptime.option.series[0].data = data.slice(-self.seconds)
+        let length = data.length
+        self.stats.uptime.option.series[0].data.splice(
+          -self.seconds -1,
+          length - self.seconds
+        )
+        // if(data.length > self.seconds)
+          // self.stats.uptime.option.series[0].data = data.slice(-self.seconds)
+
+        // console.log(JSON.parse(JSON.stringify(self.stats.uptime.option.series[0].data)));
+
+        // self.stats.uptime.option.series[0].data = data
         self.stats.uptime.option.xAxis.data = this.formated_timestamps; //columns
       }
 		})
 
 		this.EventBus.$on('mem', doc => {
-			// //console.log('recived doc via Event mem', doc)
+			// console.log('recived doc via Event mem', doc)
 
       /**
       * old method
@@ -184,6 +209,8 @@ export default {
     this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
 
     this.EventBus.$on('cpu', doc => {
+      // console.log('recived doc via Event cpu', doc)
+
       if(doc.total != self.cpu.total){
 
         //use +0 to copy value, not Observer
@@ -296,7 +323,7 @@ export default {
 		// },
     'cpu.total': function(val){
 
-      // //console.log('recived doc via Event cpu', this.cpu)
+      // console.log('recived doc via Event cpu',this.cpu)
       // //console.log('recived doc via Event cpu', this.prev_cpu)
 
       let diff_time = this.cpu.timestamp - this.prev_cpu.timestamp;
@@ -314,6 +341,8 @@ export default {
 
       if(this.stats.cpu)//UI
 		    this.stats.cpu.option.series[0].data = [{ 'value': percentage }]
+
+        console.log('recived doc via Event cpu', this.stats.cpu.option.series[0].data)
 		},
     timestamps: function (val){
       // this.formated_timestamps.push('')

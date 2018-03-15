@@ -16,6 +16,9 @@ import InputPollerCouchDBOS from './libs/input.poller.couchdb.os'
 import Vue from 'vue'
 const EventBus = new Vue();
 
+// let buffer = []
+// let buffer_size = 5
+
 const pipelines = []
 pipelines.push(new Pipeline({
 	input: [
@@ -25,8 +28,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						// host:'192.168.0.180',
-						host:'127.0.0.1',
+						host:'192.168.0.180',
+						// host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,
@@ -43,6 +46,7 @@ pipelines.push(new Pipeline({
 	],
 	filters: [
 		function(doc, opts, next){
+
 			// console.log('test filter', doc.data.cpus);
 
 			let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
@@ -66,12 +70,29 @@ pipelines.push(new Pipeline({
         });
       });
 
-      next(mem);
-      next(cpu);
-      next(timestamp);
-      next(uptime);
-			next(loadavg);
-			next(networkInterfaces);
+			// if(buffer_size > 1){
+			// 	if(buffer.length < buffer_size){
+			// 		buffer.push([mem,cpu,timestamp,uptime,loadavg,networkInterfaces])
+			// 	}
+			// 	else{
+			// 		Array.each(buffer, function(docs){
+			// 			Array.each(docs, function(doc){
+			// 				next(doc)
+			// 			})
+			// 		})
+      //
+			// 		buffer = []
+			// 	}
+			// }
+			// else{
+				next(mem);
+				next(cpu);
+				next(timestamp);
+				next(uptime);
+				next(loadavg);
+				next(networkInterfaces);
+			// }
+
 
 		}
 	],

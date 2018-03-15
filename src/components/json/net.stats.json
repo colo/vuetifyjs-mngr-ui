@@ -1,6 +1,7 @@
 {
   "class": "rain-water-fall",
   "option": {
+    "animation": false,
     "title": {
         "text": "net",
         "subtext": "net subtext",
