@@ -1,40 +1,7 @@
-<template>
-  <div>
-
-
-       <!-- each iface has stats  -->
-       <template v-for="(stat, iface) in networkInterfaces_stats">
-         <!-- each stat is an "option" obj, for eChart  -->
-         <!-- <template v-if="iface == 'lo'"> -->
-         <div
-          v-for="(option, messure) in stat"
-          v-if="messure == 'bytes' || messure == 'packets'"
-          :key="iface+'-'+messure"
-          :class="$options.net_stats.class"
-          >
-           <IEcharts
-             :option="option"
-           />
-        </div>
-      </template>
-      <!-- </template> -->
-
-     <div v-for="(stat, name) in stats" :key="name" :class="stat.class">
-       <IEcharts
-         :option="stat.option"
-       />
-     </div>
-
-  </div>
-</template>
 
 <script>
 
-import IEcharts from 'vue-echarts-v3/src/full.js';
-import stats from './json/os.stats.json'
-import net_stats from './json/net.stats.json'
-
-// import gauge from '@/components/charts/gauge'
+import osechart from '@/components/charts/os.echart'
 // import chartLine from '@/components/charts/line'
 // import chartRainfallWaterfall from '@/components/charts/rainfall.waterfall'
 
@@ -42,33 +9,37 @@ export default {
   // name: 'App',
   name: 'osstats',
 
-  net_stats: net_stats,
-
   components: {
-    // gauge,
-    // chartLine,
-    // chartRainfallWaterfall
-    IEcharts
+    osechart
   },
+  template: '<div><osechart v-bind:mem="mem"/></div>',
   props: {
     EventBus: {
       type: [Object],
        default: () => ({})
     },
-    name: {
+    /*name: {
       type: [String],
        default: () => ('usage')
-    },
+    },*/
   },
   data () {
     return {
-      stats: stats,
-      seconds: 300, //define the N timestamps to show
+
 			/**
 			* mem
 			*/
+      mem: {
+        total: 0,
+        free: 0,
+        prev: {
+          total: 0,
+          free: 0,
+          percentage: 0
+        },
+        percentage: 0
+      },
       timestamps: [],
-      formated_timestamps: [],
       uptime: [],
       // loadavg: [],
       networkInterfaces: {
@@ -76,12 +47,6 @@ export default {
         prev: {}
       },
       networkInterfaces_stats: {},
-      // networkInterfaces_series: {},
-			// mem: {
-      //   columns: {'value': 0 },
-      //   total: 0,
-	    //   free: 0,
-      // },
       cpu: {
         columns: {'value': 0 },
         total: 0,
@@ -183,27 +148,34 @@ export default {
 		})
 
 		this.EventBus.$on('mem', doc => {
-			// console.log('recived doc via Event mem', doc)
+      console.log('recived doc via Event mem', doc)
 
-      /**
-      * old method
-      * self.mem.total = doc.totalmem;
-			* self.mem.free = doc.freemem;
-      **/
+      self.$set(self.mem, 'prev', {
+        total: JSON.parse(JSON.stringify(self.mem.total)),
+        free: JSON.parse(JSON.stringify(self.mem.free)),
+        percentage: JSON.parse(JSON.stringify(self.mem.percentage)),
+      })
+
+
+      self.$set(self.mem, 'total', doc.totalmem)
+      self.$set(self.mem, 'free', doc.freemem)
 
       let percentage = 100
 
 			if(doc.totalmem != 0)
 				percentage -= doc.freemem * 100 / doc.totalmem;
 
-			percentage = percentage.toFixed(1);
+      self.$set(self.mem, 'percentage', percentage)
 
       /**
       * UI
       **/
-      if(self.stats.mem)
-        self.stats.mem.option.series[0].data = [{ 'value': percentage }]
+      // percentage = percentage.toFixed(1);
+      // if(self.stats.mem)
+      //   self.stats.mem.option.series[0].data = [{ 'value': percentage }]
 
+
+      console.log(self.mem)
 		})
 
     this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
@@ -344,73 +316,12 @@ export default {
 
         console.log('recived doc via Event cpu', this.stats.cpu.option.series[0].data)
 		},
-    timestamps: function (val){
-      // this.formated_timestamps.push('')
-      this.formated_timestamps = this.format_timestamps(this.timestamps)
-    }
+    // timestamps: function (val){
+    //   // this.formated_timestamps.push('')
+    //   this.formated_timestamps = this.format_timestamps(this.timestamps)
+    // }
 	},
-  // computed: {
-  //   formated_timestamps: function () {
-  //     return this.format_timestamps(this.timestamps)
-  //   }
-  // },
 
-  methods: {
-    format_timestamps(timestamps){
-
-      let formated = []
-      Array.each(timestamps, function(timestamp, index){
-
-        let start = '';
-        let end = '';
-        let date = new Date(timestamp);
-
-        // if(index == 0 || index == this.columns.length - 1){
-        if(index == 0 || index == timestamps.length - 1){
-          date = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-        }
-        // else if(){
-        //   date = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-        // }
-        else{
-          let seconds = date.toLocaleTimeString([], {second:'2-digit'})
-          if(seconds == '0'){
-            date = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-          }
-          else{
-            date = seconds
-          }
-
-        }
-
-        formated[index] = date;
-
-        // //console.log('---timestamps---',formated)
-      })
-
-      // //console.log('---timestamps---',formated)
-      return formated;
-
-    }
-
-  },
 
 }
 </script>
-
-<style scoped>
-  .gauge{
-    width: 400px;
-    height: 400px;
-  }
-
-  .line {
-    width: '80%';
-    height: 300px;
-  }
-
-  .rain-water-fall {
-    width: '80%';
-    height: 300px;
-  }
-</style>

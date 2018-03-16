@@ -2,7 +2,8 @@
 <script>
 
 // import osstats from '@/components/os.stats'
-import osstats from '@/components/generic.stats'
+// import osstats from '@/components/generate.stats'
+import osstats from '@/components/generate.stats_separated'
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 //import InputPollerHttpOS from './libs/input.poller.http.os'
@@ -28,8 +29,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						host:'192.168.0.180',
-						// host:'127.0.0.1',
+						// host:'192.168.0.180',
+						host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,
@@ -86,11 +87,11 @@ pipelines.push(new Pipeline({
 			// }
 			// else{
 				next(mem);
-				next(cpu);
+				// next(cpu);
 				next(timestamp);
-				next(uptime);
-				next(loadavg);
-				next(networkInterfaces);
+				// next(uptime);
+				// next(loadavg);
+				// next(networkInterfaces);
 			// }
 
 
