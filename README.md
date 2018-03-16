@@ -29,6 +29,7 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 # https://blog.udacity.com/2016/03/12-best-charting-libraries-for-web-developers.html
 
 # https://www.amcharts.com/kbase/using-amcharts-vue-js-webpack/
+# https://github.com/mkozhukharenko/ums-frontend/blob/master/src/modules/statistics/containers/Chart.js#L2-L7
 
 # https://hackernoon.com/creating-stunning-charts-with-vue-js-and-chart-js-28af584adc0a
 # http://vue-chartjs.org/#/
@@ -39,4 +40,3 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 # https://github.com/rendro/easy-pie-chart
 
 # http://dygraphs.com/index.html
-
