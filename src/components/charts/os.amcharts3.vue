@@ -1,5 +1,10 @@
 <template>
-  <div id="chartdiv" style="width: 100%; height: 400px;"></div>
+  <!-- <div id="chartdiv" style="width: 100%; height: 400px;"></div> -->
+  <div>
+    <div v-for="(stat, name) in $options.stats" :key="name" :class="stat.class" :id="name">
+      <!-- {{name}} -->
+    </div>
+  </div>
 </template>
 
 <script>
@@ -8,7 +13,7 @@ import 'amcharts3'
 import 'amcharts3/amcharts/serial'
 import 'amcharts3/amcharts/themes/light';
 
-// import stats from './json/os.amcharts3.json'
+import stats from './json/os.amcharts3'
 // import net_stats from './json/net.echart.json'
 
 export default {
@@ -46,75 +51,35 @@ export default {
       default: () => ({})
     }
   },
+
+  stats: stats,
+
   data () {
     return {
-      // stats: stats,
-      networkInterfaces_stats: {},
-      uptime_stats: []
+      charts : {},
+      stats: {},
+      // networkInterfaces_stats: {},
+      // uptime_stats: []
     }
   },
   created () {
     // console.log(AmCharts)
-    this.uptime_chart = AmCharts.makeChart("chartdiv", {
-      "path": "dist/amcharts/",
-      "type": "serial",
-      "theme": "light",
-      "marginRight": 80,
-      "autoMarginOffset": 20,
-      "marginTop": 7,
-      "dataProvider": this.uptime_stats,
-      "valueAxes": [{
-          "axisAlpha": 0.2,
-          "dashLength": 1,
-          "position": "left"
-      }],
-      "mouseWheelZoomEnabled": true,
-      "graphs": [{
-          "id": "g1",
-          "balloonText": "[[value]]",
-          "bullet": "round",
-          "bulletBorderAlpha": 1,
-          "bulletColor": "#FFFFFF",
-          "hideBulletsCount": 50,
-          "title": "red line",
-          "valueField": "value",
-          "useLineColorForBulletBorder": true,
-          "balloon":{
-              "drop":true
-          }
-      }],
-      "chartScrollbar": {
-          "autoGridCount": true,
-          "graph": "g1",
-          "scrollbarHeight": 40
-      },
-      "chartCursor": {
-         "limitToGraph":"g1"
-      },
-      "categoryField": "date",
-      "categoryAxis": {
-          "parseDates": true,
-          "minPeriod": "ss",//seconds
-          // "dateFormats": [{period:'ss',format:'JJ:NN:SS'}],
-          "axisColor": "#DADADA",
-          "dashLength": 1,
-          "minorGridEnabled": true
-      },
-      "export": {
-          "enabled": true
-      }
-    });
+    Object.each(this.$options.stats, function(stat, name){
+      // console.log(name)
 
-    /**
-    * zoom on mousedown/mouseup
-    * https://www.amcharts.com/kbase/setting-zoomed-event-fire-actual-zoom-finishes/
-    */
-    let zoomChart = function () {
-      // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
-      this.uptime_chart.zoomToIndexes(this.uptime_stats.length - 40, this.uptime_stats.length - 1);
-    }.bind(this)
-    this.uptime_chart.addListener("rendered", zoomChart);
-    zoomChart();
+      // require('amcharts3/amcharts/'+stat.option.type)
+      this.$set(this.stats, name, [])
+      stat.option.dataProvider = this.stats[name]
+      this.$set(this.charts, name, AmCharts.makeChart(name, stat.option))
+
+      if(stat.init)
+        stat.init(this.charts[name], this.stats[name])
+
+    }.bind(this))
+
+    // console.log('charts', this.charts)
+
+
   },
   watch: {
     // 'mem.percentage': function(val){
@@ -139,20 +104,21 @@ export default {
 
       // console.log('recived doc via prop uptime',val)
 
-      let data = this.uptime_stats
+      let data = this.stats.uptime
       data.push({
         value: this.uptime.value,
         date: new Date(this.uptime.timestamp),
       })
       let length = data.length
 
-      this.uptime_stats.splice(
+      this.stats.uptime.splice(
         -this.timestamps.length -1,
         length - this.timestamps.length
       )
 
-      this.uptime_chart.validateData();
-      // console.log('recived doc via prop uptime',this.uptime_stats)
+      this.charts.uptime.validateData();
+
+      // console.log('recived doc via prop uptime',this.charts.uptime)
 
       //
       // // if(this.stats.uptime){
@@ -175,27 +141,49 @@ export default {
       //   this.stats.uptime.option.xAxis.data = this.formated_timestamps; //columns
       // // }
     },
-    // 'loadavg.value': function(val){
-    //   // console.log('recived doc via prop loadavg',val)
-    //
-    //   if(this.stats.loadavg){
-    //     //three series of data, each for a load messure
-    //     Array.each(val, function (load, index) {
-    //
-    //       let data = this.stats.loadavg.option.series[index].data
-    //       data.push({ 'value': load })
-    //
-    //       let length = data.length
-    //       this.stats.loadavg.option.series[index].data.splice(
-    //         -this.timestamps.length -1,
-    //         length - this.timestamps.length
-    //       )
-    //     }.bind(this))
-    //
-    //     this.stats.loadavg.option.xAxis.data = this.formated_timestamps; //columns
-    //     // //console.log('---loadavg---',this.stats.loadavg.option.series)
-    //   }
-    // },
+    'loadavg.value': function(val){
+      // console.log('recived doc via prop loadavg',val)
+      let data = this.stats.loadavg
+
+      let values = { date: new Date(this.loadavg.timestamp) }
+
+      Array.each(this.charts.loadavg.graphs, function(graph, index){
+        let valueField = graph.valueField
+        values[valueField] = this.loadavg.value[index]
+      }.bind(this))
+      
+      data.push(values)
+
+      let length = data.length
+
+      this.stats.loadavg.splice(
+        -this.timestamps.length -1,
+        length - this.timestamps.length
+      )
+
+
+      this.charts.loadavg.validateData();
+
+      console.log('recived doc via prop uptime',this.charts.uptime)
+
+      // if(this.stats.loadavg){
+      //   //three series of data, each for a load messure
+      //   Array.each(val, function (load, index) {
+      //
+      //     let data = this.stats.loadavg.option.series[index].data
+      //     data.push({ 'value': load })
+      //
+      //     let length = data.length
+      //     this.stats.loadavg.option.series[index].data.splice(
+      //       -this.timestamps.length -1,
+      //       length - this.timestamps.length
+      //     )
+      //   }.bind(this))
+      //
+      //   this.stats.loadavg.option.xAxis.data = this.formated_timestamps; //columns
+      //   // //console.log('---loadavg---',this.stats.loadavg.option.series)
+      // }
+    },
     // 'networkInterfaces.value': function(val){
     //   let self = this
     //
@@ -327,4 +315,9 @@ export default {
 	width	: 100%;
 	height	: 500px;
 } */
+.line {
+  width: '80%';
+  height: 300px;
+}
+
 </style>
