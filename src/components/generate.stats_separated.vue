@@ -97,7 +97,7 @@ export default {
     let self = this;
 
     this.EventBus.$on('timestamp', doc => {
-			// //console.log('recived doc via Event timestamp', doc)
+			// ////console.log('recived doc via Event timestamp', doc)
       self.timestamps.push( doc );
       // self.timestamps = self.timestamps.slice(-self.seconds)
       let length = self.timestamps.length
@@ -109,7 +109,7 @@ export default {
 		})
 
     this.EventBus.$on('networkInterfaces', doc => {
-			// //console.log('recived doc via Event networkInterfaces', doc)
+			// ////console.log('recived doc via Event networkInterfaces', doc)
 
       self.$set(self.networkInterfaces, 'prev', {
         value: JSON.parse(JSON.stringify(self.networkInterfaces.value)),
@@ -128,7 +128,7 @@ export default {
 
 
     this.EventBus.$on('loadavg', doc => {
-			console.log('recived doc via Event loadavg', doc)
+			//console.log('recived doc via Event loadavg', doc)
 
       self.$set(self.loadavg, 'prev', {
         value: JSON.parse(JSON.stringify(self.loadavg.value)),
@@ -142,7 +142,7 @@ export default {
 		})
 
     this.EventBus.$on('uptime', doc => {
-			// console.log('recived doc via Event uptime', doc)
+			// //console.log('recived doc via Event uptime', doc)
 
 
       self.$set(self.uptime, 'prev', {
@@ -156,7 +156,7 @@ export default {
 		})
 
 		this.EventBus.$on('mem', doc => {
-      // console.log('recived doc via Event mem', doc)
+      // //console.log('recived doc via Event mem', doc)
 
       self.$set(self.mem, 'prev', {
         total: JSON.parse(JSON.stringify(self.mem.total)),
@@ -180,7 +180,7 @@ export default {
     // this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
 
     this.EventBus.$on('cpu', doc => {
-      // console.log('recived doc via Event cpu', doc)
+      // //console.log('recived doc via Event cpu', doc)
 
       if(doc.total != self.cpu.total){
         self.$set(self.cpu, 'prev', {
@@ -199,7 +199,8 @@ export default {
 
         //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
         let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / 10;
-        self.cpu.percentage = (percentage.toFixed(2) > 100) ? 100 : percentage.toFixed(2);
+        // self.cpu.percentage = (percentage.toFixed(2) > 100) ? 100 : percentage.toFixed(2);
+        self.cpu.percentage = (percentage > 100) ? 100 : percentage;
 
 
       }
