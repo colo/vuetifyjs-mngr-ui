@@ -21,19 +21,11 @@ export default {
     "autoMarginOffset": 20,
     "marginTop": 7,
     "dataProvider": [],
-    "valueAxes": [
-      {
+    "valueAxes": [{
         "axisAlpha": 0.2,
         "dashLength": 1,
         "position": "left"
-      },
-      {
-        "reversed": true,
-        "axisAlpha": 0.2,
-        "dashLength": 1,
-        "position": "left"
-      }
-    ],
+    }],
     "mouseWheelZoomEnabled": true,
     "graphs": [
       {

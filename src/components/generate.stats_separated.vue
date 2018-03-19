@@ -37,7 +37,7 @@ export default {
   },
   data () {
     return {
-      seconds: 300, //define the N timestamps to show
+      seconds: 10, //define the N timestamps to show
 			/**
 			* mem
 			*/

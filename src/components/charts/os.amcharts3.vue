@@ -3,18 +3,19 @@
     <!-- each iface has stats  -->
     <template v-for="(stat, iface) in networkInterfaces_stats">
       <!-- each stat is an "option" obj, for eChart  -->
-      <!-- <template v-if="iface == 'lo'"> -->
+      <template v-if="iface == 'lo'">
         <div
          v-for="(option, messure) in stat"
-         v-if="messure == 'bytes' || messure == 'packets'"
+         v-if="messure == 'packets'"
          :id="iface+'-'+messure"
          :key="iface+'-'+messure"
          :class="$options.net_stats.class"
          >
-
+         <!-- {{iface+'-'+messure}} -->
        </div>
-     <!-- </template> -->
+     </template>
    </template>
+<!-- v-if="messure == 'bytes' || messure == 'packets'" -->
 
    <!-- stats -->
     <div v-for="(stat, name) in $options.stats" :key="name" :class="stat.class" :id="name">
@@ -117,7 +118,7 @@ export default {
   //   console.log('this.networkInterfaces.ifaces', JSON.parse(JSON.stringify(this.networkInterfaces.value)))
   //   let ifaces = Object.keys(this.networkInterfaces.value)
   //   let properties = Object.keys(this.networkInterfaces.value[ifaces[0]])
-  //   let messures = Object.keys(this.networkInterfaces.value[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | trasmited
+  //   let messures = Object.keys(this.networkInterfaces.value[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
   //
   //
   //   //console.log('ifaces: ', ifaces)
@@ -214,7 +215,8 @@ export default {
 
         this.stats.loadavg.lastupdate = Date.now()
       }
-      //console.log('recived doc via prop uptime',this.charts.uptime)
+
+      console.log('recived doc via prop loadavg',this.charts.loadavg)
 
 
     },
@@ -223,12 +225,12 @@ export default {
 
       let ifaces = Object.keys(val)
       let properties = Object.keys(val[ifaces[0]])
-      let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | trasmited
+      let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
 
 
-      console.log('ifaces: ', ifaces)
-      console.log('properties: ', properties)
-      console.log('messures: ', messures)
+      // console.log('ifaces: ', ifaces)
+      // console.log('properties: ', properties)
+      // console.log('messures: ', messures)
 
       Array.each(ifaces, function(iface){
         if(!self.networkInterfaces_stats[iface])
@@ -236,11 +238,12 @@ export default {
 
         /**
         * turn data property->messure (ex: transmited { bytes: .. }),
-        * to: messure->property (ex: bytes {trasmited:.., recived: ... })
+        * to: messure->property (ex: bytes {transmited:.., recived: ... })
         **/
         Array.each(messures, function(messure){// "bytes" | "packets"
           if(!self.networkInterfaces_stats[iface][messure])
-            self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, "recived" : [], "trasmited": [] } )
+            self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, data: [] } )
+            // self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, "recived" : [], "transmited": [] } )
             // self.$set(self.networkInterfaces_stats[iface], messure, self.$options.net_stats.option)
             // // self.networkInterfaces_stats[iface][messure] = self.$options.net_stats.option
             // // self.networkInterfaces_stats[iface][messure] =  { option: self.$options.net_stats.option }
@@ -249,7 +252,7 @@ export default {
             // self.networkInterfaces_stats[iface][messure].title.subtext = messure
             // self.networkInterfaces_stats[iface][messure].xAxis[0].data = self.formated_timestamps
 
-            console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+            // console.log('self.networkInterfaces_stats', JSON.parse(JSON.stringify(self.networkInterfaces_stats)))
 
             Array.each(properties, function(property){// "recived" | "transmited"
               if(property == 'recived' || property == 'transmited'){
@@ -263,13 +266,50 @@ export default {
                 // let serie = {}
 
                 // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure]))
-                let copy = self.networkInterfaces_stats[iface][messure]
+                let copy = self.networkInterfaces_stats[iface][messure].data
 
-                copy[property].push(data)
+                // console.log('self.networkInterfaces_stats', val)
+                // console.log('self.networkInterfaces_stats', property)
+                // console.log('self.networkInterfaces_stats', iface)
+                // console.log('self.networkInterfaces_stats', JSON.parse(JSON.stringify(copy)))
 
-                let length = copy[property]
+                // copy[property].push(data)
 
-                copy[property].splice(
+                let value = copy.getLast()
+                if(value == null){//no data yet
+                  value = {}
+                }
+
+                if(!value['date'])
+                  value['date'] = new Date(self.networkInterfaces.timestamp)
+
+                if(!value[property])
+                  value[property] = data
+
+                // if(Object.keys(value).length == 2)//date + a property
+                //   copy.push(value)
+
+                // if(!value['date'] || value['date'].getTime() != self.networkInterfaces.timestamp){
+                //   if(!value['date']){
+                //     console.log('---seting date---', iface, messure, property)
+                //     value['date'] =  JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
+                //     value['date'] = new Date(value['date'])
+                //   }
+                //
+                //   copy.push(value)
+                // }
+
+
+
+                // let length = copy[property]
+                //
+                // copy[property].splice(
+                //   -self.timestamps.length -1,
+                //   length - self.timestamps.length
+                // )
+                let length = copy.length
+
+                copy.splice(
                   -self.timestamps.length -1,
                   length - self.timestamps.length
                 )
@@ -301,6 +341,11 @@ export default {
               }
             })
 
+            // if(self.networkInterfaces_charts[iface+'-'+messure]){
+            //   // console.log('---validatin---',self.networkInterfaces_charts[iface+'-'+messure])
+            //   self.networkInterfaces_charts[iface+'-'+messure].validateData()
+            // }
+
         })
 
       })
@@ -318,7 +363,42 @@ export default {
       //   }.bind(this))
       // }
 
+      // if(Object.keys(this.networkInterfaces_charts).length < Object.keys(this.networkInterfaces_stats).length ){
+      //
+      //   console.log('iface-messure',Object.keys(this.networkInterfaces_charts))
+      //   console.log('iface-messure',Object.keys(this.networkInterfaces_stats))
+
+        Object.each(this.networkInterfaces_stats, function(stat, iface){
+          Object.each(stat, function(value, messure){
+
+            // this.$set(this.stats, name, {lastupdate: 0, data: []})
+            // stat.option.dataProvider = this.stats[name].data
+
+            if(document.getElementById(iface+'-'+messure)){
+              if(!this.networkInterfaces_charts[iface+'-'+messure]){
+                this.$set(this.networkInterfaces_charts, iface+'-'+messure, AmCharts.makeChart(iface+'-'+messure, this.$options.net_stats.option))
+                this.networkInterfaces_charts[iface+'-'+messure].dataProvider = value.data
+
+                if(this.$options.net_stats.init)
+                  this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
+              }
+              else{
+
+                this.networkInterfaces_charts[iface+'-'+messure].validateData()
+              }
+                // if(self.networkInterfaces_charts[iface+'-'+messure]){
+                //   // console.log('---validatin---',self.networkInterfaces_charts[iface+'-'+messure])
+                //   self.networkInterfaces_charts[iface+'-'+messure].validateData()
+                // }
+            }
+
+          }.bind(this))
+        }.bind(this))
+      // }
+
+      console.log('self.networkInterfaces', self.networkInterfaces)
       console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+      console.log('self.networkInterfaces_charts', self.networkInterfaces_charts)
 
     },
   },
