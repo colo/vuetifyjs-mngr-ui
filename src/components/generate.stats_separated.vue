@@ -122,7 +122,7 @@ export default {
 
 
       self.networkInterfaces.value = doc;
-      self.networkInterfaces.timestamp = self.timestamps.getLast();
+      self.networkInterfaces.timestamp = JSON.parse(JSON.stringify(self.timestamps.getLast()));
 		})
 
 

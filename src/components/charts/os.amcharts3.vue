@@ -242,7 +242,8 @@ export default {
         **/
         Array.each(messures, function(messure){// "bytes" | "packets"
           if(!self.networkInterfaces_stats[iface][messure])
-            self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, data: [] } )
+            self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
+            // self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, data: [] } )
             // self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, "recived" : [], "transmited": [] } )
             // self.$set(self.networkInterfaces_stats[iface], messure, self.$options.net_stats.option)
             // // self.networkInterfaces_stats[iface][messure] = self.$options.net_stats.option
@@ -280,24 +281,24 @@ export default {
                   value = {}
                 }
 
-                if(!value['date'])
-                  value['date'] = new Date(self.networkInterfaces.timestamp)
-
-                if(!value[property])
-                  value[property] = data
+                // if(!value['date'])
+                //   value['date'] = new Date(self.networkInterfaces.timestamp)
+                //
+                // if(!value[property])
+                value[property] = data
 
                 // if(Object.keys(value).length == 2)//date + a property
                 //   copy.push(value)
+                let timestamp = JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
 
-                // if(!value['date'] || value['date'].getTime() != self.networkInterfaces.timestamp){
-                //   if(!value['date']){
-                //     console.log('---seting date---', iface, messure, property)
-                //     value['date'] =  JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
-                //     value['date'] = new Date(value['date'])
-                //   }
-                //
-                //   copy.push(value)
-                // }
+                if(!value['date'] || value['date'] != timestamp){
+                  // if(!value['date']){
+                    console.log('---seting date---', iface, messure, property, timestamp)
+                    value['date'] =  timestamp
+                  // }
+
+                  copy.push(value)
+                }
 
 
 
@@ -377,13 +378,14 @@ export default {
             if(document.getElementById(iface+'-'+messure)){
               if(!this.networkInterfaces_charts[iface+'-'+messure]){
                 this.$set(this.networkInterfaces_charts, iface+'-'+messure, AmCharts.makeChart(iface+'-'+messure, this.$options.net_stats.option))
-                this.networkInterfaces_charts[iface+'-'+messure].dataProvider = value.data
+                // this.networkInterfaces_charts[iface+'-'+messure] = AmCharts.makeChart(iface+'-'+messure, this.$options.net_stats.option)
+
 
                 if(this.$options.net_stats.init)
                   this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
               }
               else{
-
+                this.networkInterfaces_charts[iface+'-'+messure].dataProvider = value.data
                 this.networkInterfaces_charts[iface+'-'+messure].validateData()
               }
                 // if(self.networkInterfaces_charts[iface+'-'+messure]){
