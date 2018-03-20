@@ -21,15 +21,27 @@ export default {
     "autoMarginOffset": 20,
     "marginTop": 7,
     "dataProvider": [],
-    "valueAxes": [{
+    "valueAxes": [
+      {
+        "id": "transmited",
         "axisAlpha": 0.2,
         "dashLength": 1,
         "position": "left"
-    }],
+      },
+      {
+        "id": "recived",
+        "axisAlpha": 0.2,
+        "dashLength": 1,
+        "position": "right",
+        "reversed": true,
+        // "offset": -200
+      }
+    ],
     "mouseWheelZoomEnabled": true,
     "graphs": [
       {
         "id": "g1",
+        "valueAxis": "transmited",
         "balloonText": "[[value]]",
         "bullet": "round",
         "bulletBorderAlpha": 1,
@@ -44,6 +56,7 @@ export default {
       },
       {
         "id": "g2",
+        "valueAxis": "recived",
         "balloonText": "[[value]]",
         "bullet": "round",
         "bulletBorderAlpha": 1,

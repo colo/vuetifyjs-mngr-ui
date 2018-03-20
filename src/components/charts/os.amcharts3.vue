@@ -3,18 +3,19 @@
     <!-- each iface has stats  -->
     <template v-for="(stat, iface) in networkInterfaces_stats">
       <!-- each stat is an "option" obj, for eChart  -->
-      <template v-if="iface == 'lo'">
+      <!-- <template v-if="iface == 'lo'"> -->
         <div
          v-for="(option, messure) in stat"
-         v-if="messure == 'packets'"
+         v-if="messure == 'bytes' || messure == 'packets'"
          :id="iface+'-'+messure"
          :key="iface+'-'+messure"
          :class="$options.net_stats.class"
          >
          <!-- {{iface+'-'+messure}} -->
        </div>
-     </template>
+     <!-- </template> -->
    </template>
+   <!-- v-if="messure == 'packets'" -->
 <!-- v-if="messure == 'bytes' || messure == 'packets'" -->
 
    <!-- stats -->
@@ -83,9 +84,9 @@ export default {
     }
   },
   created () {
-    // //console.log(AmCharts)
+    // ////console.log(AmCharts)
     Object.each(this.$options.stats, function(stat, name){
-      // //console.log(name)
+      // ////console.log(name)
 
       // require('amcharts3/amcharts/'+stat.option.type)
       this.$set(this.stats, name, {lastupdate: 0, data: []})
@@ -97,7 +98,7 @@ export default {
 
     }.bind(this))
 
-    // //console.log('this.networkInterfaces',this.networkInterfaces)
+    // ////console.log('this.networkInterfaces',this.networkInterfaces)
 
     // Object.each(this.$networkInterfaces, function(stat, name){
     //
@@ -115,15 +116,15 @@ export default {
   //   /**
   //   * networkInterfaces
   //   **/
-  //   console.log('this.networkInterfaces.ifaces', JSON.parse(JSON.stringify(this.networkInterfaces.value)))
+  //   //console.log('this.networkInterfaces.ifaces', JSON.parse(JSON.stringify(this.networkInterfaces.value)))
   //   let ifaces = Object.keys(this.networkInterfaces.value)
   //   let properties = Object.keys(this.networkInterfaces.value[ifaces[0]])
   //   let messures = Object.keys(this.networkInterfaces.value[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
   //
   //
-  //   //console.log('ifaces: ', ifaces)
-  //   //console.log('properties: ', properties)
-  //   //console.log('messures: ', messures)
+  //   ////console.log('ifaces: ', ifaces)
+  //   ////console.log('properties: ', properties)
+  //   ////console.log('messures: ', messures)
   //
   //   /**
   //   * networkInterfaces
@@ -142,7 +143,7 @@ export default {
 
         this.stats.mem.lastupdate = Date.now()
       }
-      // // //console.log('recived doc via prop mem', val)
+      // // ////console.log('recived doc via prop mem', val)
       //
       // if(this.stats.mem){
       //   let percentage = val.toFixed(1);
@@ -150,8 +151,8 @@ export default {
       // }
     },
     'cpu.percentage': function(val){
-      // //console.log('recived doc via prop cpu',val)
-      // ////console.log('recived doc via Event cpu', this.prev_cpu)
+      // ////console.log('recived doc via prop cpu',val)
+      // //////console.log('recived doc via Event cpu', this.prev_cpu)
       if(this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval){
 
         val = val.toFixed(2)
@@ -164,11 +165,11 @@ export default {
         this.stats.cpu.lastupdate = Date.now()
       }
 
-      // //console.log('recived doc via prop cpu', this.stats.cpu.option.series[0].data)
+      // ////console.log('recived doc via prop cpu', this.stats.cpu.option.series[0].data)
 		},
     'uptime.value': function(val){
 
-      // //console.log('recived doc via prop uptime',val)
+      // ////console.log('recived doc via prop uptime',val)
 
       let data = this.stats.uptime.data
       data.push({
@@ -191,7 +192,7 @@ export default {
 
     },
     'loadavg.value': function(val){
-      // //console.log('recived doc via prop loadavg',val)
+      // ////console.log('recived doc via prop loadavg',val)
       let data = this.stats.loadavg.data
 
       let values = { date: new Date(this.loadavg.timestamp) }
@@ -211,12 +212,16 @@ export default {
       )
 
       if(this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval){
+        // https://www.amcharts.com/kbase/preserving-zoom-serial-chart-across-data-updates/
+        // "zoomed" will be called after data update so we need to ignore the next call for it
+        this.charts.ignoreZoomed = true;
+
         this.charts.loadavg.validateData();
 
         this.stats.loadavg.lastupdate = Date.now()
       }
 
-      console.log('recived doc via prop loadavg',this.charts.loadavg)
+      // //console.log('recived doc via prop loadavg',this.charts.loadavg)
 
 
     },
@@ -228,9 +233,9 @@ export default {
       let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
 
 
-      // console.log('ifaces: ', ifaces)
-      // console.log('properties: ', properties)
-      // console.log('messures: ', messures)
+      // //console.log('ifaces: ', ifaces)
+      // //console.log('properties: ', properties)
+      // //console.log('messures: ', messures)
 
       Array.each(ifaces, function(iface){
         if(!self.networkInterfaces_stats[iface])
@@ -253,7 +258,7 @@ export default {
             // self.networkInterfaces_stats[iface][messure].title.subtext = messure
             // self.networkInterfaces_stats[iface][messure].xAxis[0].data = self.formated_timestamps
 
-            // console.log('self.networkInterfaces_stats', JSON.parse(JSON.stringify(self.networkInterfaces_stats)))
+            // //console.log('self.networkInterfaces_stats', JSON.parse(JSON.stringify(self.networkInterfaces_stats)))
 
             Array.each(properties, function(property){// "recived" | "transmited"
               if(property == 'recived' || property == 'transmited'){
@@ -267,12 +272,12 @@ export default {
                 // let serie = {}
 
                 // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure]))
-                let copy = self.networkInterfaces_stats[iface][messure].data
+                let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
 
-                // console.log('self.networkInterfaces_stats', val)
-                // console.log('self.networkInterfaces_stats', property)
-                // console.log('self.networkInterfaces_stats', iface)
-                // console.log('self.networkInterfaces_stats', JSON.parse(JSON.stringify(copy)))
+                // //console.log('self.networkInterfaces_stats', val)
+                // //console.log('self.networkInterfaces_stats', property)
+                // //console.log('self.networkInterfaces_stats', iface)
+                // //console.log('self.networkInterfaces_stats', JSON.parse(JSON.stringify(copy)))
 
                 // copy[property].push(data)
 
@@ -293,7 +298,7 @@ export default {
 
                 if(!value['date'] || value['date'] != timestamp){
                   // if(!value['date']){
-                    console.log('---seting date---', iface, messure, property, timestamp)
+                    //console.log('---seting date---', iface, messure, property, timestamp)
                     value['date'] =  timestamp
                   // }
 
@@ -315,7 +320,7 @@ export default {
                   length - self.timestamps.length
                 )
 
-
+                self.networkInterfaces_stats[iface][messure].data = JSON.parse(JSON.stringify(copy))
                 // if(property == 'recived'){
                 //   copy.series[0].data.push(data)
                 //   // option.series[0].data = option.series[0].data.slice(-self.seconds)
@@ -330,20 +335,20 @@ export default {
                 // self.networkInterfaces_stats[iface][messure] = option
 
                 // if(messure == "bytes" && iface == 'brkvm'){
-                //   //console.log('self.networkInterfaces_stats iface', iface)
-                //   //console.log('self.networkInterfaces_stats messure', messure)
-                //   //console.log('self.networkInterfaces_stats property', property)
-                //   //console.log('self.networkInterfaces_stats value', current )
-                //   //console.log('self.networkInterfaces_stats prev', prev )
-                //   //console.log('self.networkInterfaces_stats DATA', data )
-                //   //console.log('self.networkInterfaces_stats SERIE', option )
+                //   ////console.log('self.networkInterfaces_stats iface', iface)
+                //   ////console.log('self.networkInterfaces_stats messure', messure)
+                //   ////console.log('self.networkInterfaces_stats property', property)
+                //   ////console.log('self.networkInterfaces_stats value', current )
+                //   ////console.log('self.networkInterfaces_stats prev', prev )
+                //   ////console.log('self.networkInterfaces_stats DATA', data )
+                //   ////console.log('self.networkInterfaces_stats SERIE', option )
                 // }
 
               }
             })
 
             // if(self.networkInterfaces_charts[iface+'-'+messure]){
-            //   // console.log('---validatin---',self.networkInterfaces_charts[iface+'-'+messure])
+            //   // //console.log('---validatin---',self.networkInterfaces_charts[iface+'-'+messure])
             //   self.networkInterfaces_charts[iface+'-'+messure].validateData()
             // }
 
@@ -366,8 +371,8 @@ export default {
 
       // if(Object.keys(this.networkInterfaces_charts).length < Object.keys(this.networkInterfaces_stats).length ){
       //
-      //   console.log('iface-messure',Object.keys(this.networkInterfaces_charts))
-      //   console.log('iface-messure',Object.keys(this.networkInterfaces_stats))
+      //   //console.log('iface-messure',Object.keys(this.networkInterfaces_charts))
+      //   //console.log('iface-messure',Object.keys(this.networkInterfaces_stats))
 
         Object.each(this.networkInterfaces_stats, function(stat, iface){
           Object.each(stat, function(value, messure){
@@ -376,20 +381,37 @@ export default {
             // stat.option.dataProvider = this.stats[name].data
 
             if(document.getElementById(iface+'-'+messure)){
+
               if(!this.networkInterfaces_charts[iface+'-'+messure]){
-                this.$set(this.networkInterfaces_charts, iface+'-'+messure, AmCharts.makeChart(iface+'-'+messure, this.$options.net_stats.option))
+                //console.log('---validatin---', iface+'-'+messure)
+
+                let option = JSON.parse(JSON.stringify(this.$options.net_stats.option))
+                Array.each(option.valueAxes, function(axis, index){
+                  axis.id = iface+'-'+messure+'-'+axis.id
+                  option.graphs[index].valueAxis = axis.id
+                })
+
+                this.$set(this.networkInterfaces_charts, iface+'-'+messure, AmCharts.makeChart(iface+'-'+messure, option))
                 // this.networkInterfaces_charts[iface+'-'+messure] = AmCharts.makeChart(iface+'-'+messure, this.$options.net_stats.option)
 
 
                 if(this.$options.net_stats.init)
                   this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
               }
-              else{
+              // else{
+
+              if(value.lastupdate < Date.now() - this.$options.net_stats.interval){
                 this.networkInterfaces_charts[iface+'-'+messure].dataProvider = value.data
                 this.networkInterfaces_charts[iface+'-'+messure].validateData()
+
+                value.lastupdate = Date.now()
               }
+
+
+
+              // }
                 // if(self.networkInterfaces_charts[iface+'-'+messure]){
-                //   // console.log('---validatin---',self.networkInterfaces_charts[iface+'-'+messure])
+                //   // //console.log('---validatin---',self.networkInterfaces_charts[iface+'-'+messure])
                 //   self.networkInterfaces_charts[iface+'-'+messure].validateData()
                 // }
             }
@@ -398,9 +420,9 @@ export default {
         }.bind(this))
       // }
 
-      console.log('self.networkInterfaces', self.networkInterfaces)
-      console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
-      console.log('self.networkInterfaces_charts', self.networkInterfaces_charts)
+      //console.log('self.networkInterfaces', self.networkInterfaces)
+      //console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+      //console.log('self.networkInterfaces_charts', self.networkInterfaces_charts)
 
     },
   },
@@ -439,10 +461,10 @@ export default {
 
         formated[index] = date;
 
-        // ////console.log('---timestamps---',formated)
+        // //////console.log('---timestamps---',formated)
       })
 
-      // ////console.log('---timestamps---',formated)
+      // //////console.log('---timestamps---',formated)
       return formated;
 
     }

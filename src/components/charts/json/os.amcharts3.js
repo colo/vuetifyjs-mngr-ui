@@ -67,18 +67,28 @@ export default {
   "loadavg": {
     "class": "line",
     "interval": 5000,
-    // "init": function(chart, data){
-    //   /**
-    //   * zoom on mousedown/mouseup
-    //   * https://www.amcharts.com/kbase/setting-zoomed-event-fire-actual-zoom-finishes/
-    //   */
-    //   let zoomChart = function () {
-    //     // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
-    //     chart.zoomToIndexes(data.length - 40, data.length - 1);
-    //   }
-    //   chart.addListener("rendered", zoomChart);
-    //   zoomChart();
-    // },
+    /**
+    * https://www.amcharts.com/kbase/preserving-zoom-serial-chart-across-data-updates/
+    **/
+    "init": function(chart, data){
+      chart.ignoreZoomed = false;
+      chart.addListener("zoomed", function(event) {
+        if (chart.ignoreZoomed) {
+          chart.ignoreZoomed = false;
+          return;
+        }
+        chart.zoomStartDate = event.startDate;
+        chart.zoomEndDate = event.endDate;
+      });
+
+      chart.addListener("dataUpdated", function(event) {
+        console.log(chart.zoomStartDate);
+        console.log(chart.zoomEndDate);
+        if(chart.zoomStartDate != chart.zoomEndDate)
+          chart.zoomToDates(chart.zoomStartDate, chart.zoomEndDate);
+      });
+
+    },
     "option": {
       "path": "dist/amcharts/",
       "type": "serial",
