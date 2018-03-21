@@ -40,3 +40,5 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 # https://github.com/rendro/easy-pie-chart
 
 # http://dygraphs.com/index.html
+
+# ----> https://github.com/ankane/vue-chartkick

@@ -171,7 +171,7 @@ export default {
   },
   cpu: {
     "class": "gauge",
-    "interval": 2000,
+    "interval": 1000,
     "option": {
       // "startEffect": "bounce",
       "path": "dist/amcharts/",
