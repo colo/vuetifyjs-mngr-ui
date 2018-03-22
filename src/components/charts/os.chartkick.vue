@@ -25,9 +25,9 @@
     - https://forum.vuejs.org/t/render-components-with-dynamic-names/14153
     -->
 
-    <template stat.type v-for="(stat, name) in $options.stats">
+    <template v-for="(stat, name) in $options.stats">
       <!-- {{name}} -->
-      <stat.type :is="stat.type" :class="stat.class" :id="name" v-bind="stat.option" :ref="name" :data="stats[name].data"  :library="{  'backgroundColor': 'rgba(1, 1, 1, 1)'} "/>
+      <stat.type v-bind="stat.option" :is="stat.type" :class="stat.class" :id="name" :ref="name" :data="stats[name].data"/>
     </template>
 
   </div>
@@ -110,6 +110,8 @@ export default {
       //
       // }
     }.bind(this))
+
+    // this.stats.cpu.data.push(['Blueberry', 44], ['Strawberry', 23])
     //
     // // console.log(this.$children)
     // this.stats.uptime.data = {'2017-05-13': 2, '2017-05-14': 5}
@@ -135,7 +137,10 @@ export default {
   watch: {
     'mem.percentage': function(val){
       // if(this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval){
-      //   val = val.toFixed(2)
+
+        val = val.toFixed(2)
+        this.stats.mem.data = [['Used', val], ['Free', 100 - val]]
+
       //
       //   this.charts.mem.arrows[0].setValue(val);
       //   this.charts.mem.axes[0].setTopText(val + " %");
@@ -150,7 +155,10 @@ export default {
 
       // if(this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval){
       //
-      //   val = val.toFixed(2)
+
+        val = val.toFixed(2)
+        this.stats.cpu.data = [['Used', val], ['Free', 100 - val]]
+
       //   this.charts.cpu.arrows[0].setValue(val);
       //   this.charts.cpu.axes[0].setTopText(val + " %");
       //
@@ -392,7 +400,7 @@ export default {
   height: 300px;
 }
 .gauge {
-  width: 400px;
-  height: 400px;
+  width: 200px;
+  height: 200px;
 }
 </style>
