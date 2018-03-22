@@ -3,7 +3,8 @@
 
 // import osechart from '@/components/charts/os.echart'
 // import osamcharts from '@/components/charts/os.amcharts3'
-import oschartkick from '@/components/charts/os.chartkick'
+// import oschartkick from '@/components/charts/os.chartkick'
+import oschartjs from '@/components/charts/os.chartjs'
 
 // import chartLine from '@/components/charts/line'
 // import chartRainfallWaterfall from '@/components/charts/rainfall.waterfall'
@@ -15,7 +16,8 @@ export default {
   components: {
     // osechart
     // osamcharts
-    oschartkick
+    // oschartkick
+    oschartjs
   },
   // template: '<div><osechart '+
   //           ':mem="mem" :cpu="cpu" '+
@@ -31,7 +33,14 @@ export default {
   //           ':timestamps="timestamps"'+
   //           ':networkInterfaces="networkInterfaces"'+
   //           '/></div>',
-  template: '<div><oschartkick '+
+  // template: '<div><oschartkick '+
+  //           ':mem="mem" :cpu="cpu" '+
+  //           ':uptime="uptime" '+
+  //           ':loadavg="loadavg"'+
+  //           ':timestamps="timestamps"'+
+  //           ':networkInterfaces="networkInterfaces"'+
+  //           '/></div>',
+  template: '<div><oschartjs '+
             ':mem="mem" :cpu="cpu" '+
             ':uptime="uptime" '+
             ':loadavg="loadavg"'+

@@ -42,3 +42,9 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 # http://dygraphs.com/index.html
 
 # ----> https://github.com/ankane/vue-chartkick
+
+# https://github.com/weizhenye/vue-highcharts
+#https://stackoverflow.com/questions/17550014/how-do-you-increase-the-performance-of-highcharts-chart-creation-and-rendering
+# https://www.highcharts.com/component/content/article/2-news/175-highcharts-performance-boost
+# https://github.com/highcharts/highcharts/blob/master/js/modules/boost.src.js
+# https://stackoverflow.com/questions/43746529/improve-highcharts-performance-for-large-amounts-of-data/43815871#43815871

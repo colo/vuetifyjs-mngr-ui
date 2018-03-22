@@ -1,5 +1,9 @@
 {
   "class": "rain-water-fall",
+  "init": {
+    "renderer": "canvas"
+  },
+  "lazyUpdate": true,
   "option": {
     "animation": false,
     "title": {

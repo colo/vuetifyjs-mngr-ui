@@ -14,7 +14,9 @@
           >
            <IEcharts
              :option="option"
+             :initOpts="$options.net_stats.init"
            />
+           <!-- :lazyUpdate="$options.net_stats.lazyUpdate" -->
         </div>
       </template>
       <!-- </template> -->
@@ -22,7 +24,9 @@
      <div v-for="(stat, name) in stats" :key="name" :class="stat.class">
        <IEcharts
          :option="stat.option"
+         :initOpts="stat.init"
        />
+       <!-- :lazyUpdate="stat.lazyUpdate" -->
      </div>
 
   </div>

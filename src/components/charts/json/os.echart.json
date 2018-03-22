@@ -1,6 +1,10 @@
 {
   "uptime": {
     "class": "line",
+    "init": {
+      "renderer": "canvas"
+    },
+    "lazyUpdate": true,
     "option": {
       "animation": false,
       "title": {
@@ -33,6 +37,10 @@
   },
   "loadavg": {
     "class": "line",
+    "init": {
+      "renderer": "canvas"
+    },
+    "lazyUpdate": true,
     "option": {
       "animation": false,
       "title": {
@@ -79,6 +87,10 @@
   },
   "cpu":{
     "class": "gauge",
+    "init": {
+      "renderer": "canvas"
+    },
+    "lazyUpdate": true,
     "option":{
         "animation": true,
         "tooltip" : {
@@ -102,8 +114,12 @@
   },
   "mem":{
     "class": "gauge",
-    "animation": true,
+    "init": {
+      "renderer": "canvas"
+    },
+    "lazyUpdate": true,
     "option":{
+        "animation": true,
         "tooltip" : {
             "formatter": "{a} <br/>{b} : {c}%"
         },
