@@ -13,6 +13,7 @@
     "amcharts3": "github:amcharts/amcharts3",
     "chart.js": "^2.7.2",
     "chartkick": "^2.3.3",
+    "dygraphs": "^2.1.0",
     "echarts": "^4.0.4",
     "hchs-vue-charts": "^1.2.8",
     "node-app-couchdb-client": "git+https://github.com/colo/node-app-couchdb-client.git",

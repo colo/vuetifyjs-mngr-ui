@@ -25,7 +25,7 @@
     - https://forum.vuejs.org/t/render-components-with-dynamic-names/14153
     -->
 
-    <template v-for="(stat, name) in $options.stats">
+    <!-- <template v-for="(stat, name) in $options.stats">
       <template v-if="Array.isArray(stat)">
         <div :class="stat[0].class">
           <canvas :id="name" :count="stat.length"/>
@@ -74,20 +74,24 @@
 
 
 
-    </template>
-    <!-- <chartjs-line></chartjs-line> -->
+    </template> -->
+
+    <div id="graphdiv"></div>
+
   </div>
 </template>
 
 <script>
 
-import ChartJS from 'chart.js'
-import 'hchs-vue-charts/dist/vue-charts.js'
-import Vue from 'vue'
+import Dygraph from 'dygraphs'
 
-Vue.use(VueCharts)
+// import ChartJS from 'chart.js'
+// import 'hchs-vue-charts/dist/vue-charts.js'
+// import Vue from 'vue'
+//
+// Vue.use(VueCharts)
 
-import stats from './json/os.chartjs'
+import stats from './json/os.dygraphs'
 // import net_stats from './json/net.chartkick'
 
 export default {
@@ -139,26 +143,36 @@ export default {
     }
   },
   created () {
-    Object.each(this.$options.stats, function(stat, name){
-      if(Array.isArray(stat)){
-        this.$set(this.stats, name, [])
-        Array.each(stat, function(item){
-          this.stats[name].push({lastupdate: 0, data: [], labels: [] })
-        }.bind(this))
 
 
-      }
-      else{
-        this.$set(this.stats, name, {lastupdate: 0, data: [], labels: [] })
-      }
-
-
-
-    }.bind(this))
-
-    this.stats.uptime.labels = this.formated_timestamps
+    // Object.each(this.$options.stats, function(stat, name){
+    //   if(Array.isArray(stat)){
+    //     this.$set(this.stats, name, [])
+    //     Array.each(stat, function(item){
+    //       this.stats[name].push({lastupdate: 0, data: [], labels: [] })
+    //     }.bind(this))
+    //
+    //
+    //   }
+    //   else{
+    //     this.$set(this.stats, name, {lastupdate: 0, data: [], labels: [] })
+    //   }
+    //
+    //
+    //
+    // }.bind(this))
+    //
+    // this.stats.uptime.labels = this.formated_timestamps
   },
   mounted () {
+    let g = new Dygraph(
+        document.getElementById("graphdiv"),  // containing div
+        "Date,Temperature\n" +                // the data series
+        "2008-05-07,75\n" +
+        "2008-05-08,70\n" +
+        "2008-05-09,80\n",
+        { }                                   // the options
+      );
     // Object.each(this.$options.stats, function(stat, name){
     //   console.log(this.stats[name].data)
     //

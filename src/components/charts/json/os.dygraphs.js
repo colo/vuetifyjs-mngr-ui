@@ -4,90 +4,9 @@ export default {
     "interval": 5000,
     "type": "chartjs-line",
     "options": {
-      "bind": true,
-      "linetension": 0,
-      // "labels": [],
-      // "width": "80%",
-      "height": 30,
-
-      "option": {
-        "animation": {
-          "duration": 0
-          // "easing": "linear"
-        }
-      }
-
     }
   },
-  loadavg: [
-    {
-      "class": "line",
-      "interval": 5000,
-      "type": "chartjs-line",
-      "options": {
-        "bind": true,
-        "linetension": 0,
-        "backgroundcolor": "rgba(75,192,192,0.1)",
-        "bordercolor": "#00c853",
-        // "labels": [],
-        // "width": "80%",
-        "height": 30,
-        "fill": true,
-
-        "option": {
-          "animation": {
-            "duration": 0
-            // "easing": "linear"
-          }
-        }
-
-      }
-    },
-    {
-      "class": "line",
-      "interval": 5000,
-      "type": "chartjs-line",
-      "options": {
-        "bind": true,
-        "linetension": 0,
-        "backgroundcolor": "rgba(75,192,192,0.1)",
-        "bordercolor": "#00FFFF",
-        // "labels": [],
-        // "width": "80%",
-        "height": 30,
-        "fill": true,
-
-        "option": {
-          "animation": {
-            "duration": 0
-            // "easing": "linear"
-          }
-        }
-
-      }
-    },
-    {
-      "class": "line",
-      "interval": 5000,
-      "type": "chartjs-line",
-      "options": {
-        "bind": true,
-        "linetension": 0,
-        // "labels": [],
-        // "width": "80%",
-        "height": 30,
-        "fill": true,
-
-        "option": {
-          "animation": {
-            "duration": 0
-            // "easing": "linear"
-          }
-        }
-
-      }
-    }
-  ],
+  
   // "loadavg": {
   //   "class": "line",
   //   "interval": 5000,
