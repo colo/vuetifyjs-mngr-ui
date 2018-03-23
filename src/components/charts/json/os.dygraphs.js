@@ -1,12 +1,28 @@
 export default {
   "uptime": {
     "class": "line",
-    "interval": 5000,
-    "type": "chartjs-line",
+    "style": "width:95%; height:100px;",
+    "interval": 0,
     "options": {
+      // drawPoints: true,
+      showRoller: true,
+      // valueRange: [0.0, 1.2],
+      labels: ['Time', 'Value']
     }
   },
-  
+
+  "loadavg": {
+    "class": "line",
+    "style": "width:95%; height:250px;",
+    "interval": 0,
+    "options": {
+      // drawPoints: true,
+      showRoller: true,
+      // valueRange: [0.0, 1.2],
+      labels: ['Time', '1 min avg', '5 min avg', '15 min avg']
+
+    }
+  },
   // "loadavg": {
   //   "class": "line",
   //   "interval": 5000,

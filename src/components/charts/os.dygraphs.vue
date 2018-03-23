@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <!-- each iface has stats  -->
     <template v-for="(stat, iface) in networkInterfaces_stats">
       <!-- each stat is an "option" obj, for eChart  -->
@@ -9,74 +10,27 @@
          v-if="messure == 'bytes' || messure == 'packets'"
          :id="iface+'-'+messure"
          :key="iface+'-'+messure"
+         :ref="iface+'-'+messure"
          :class="$options.net_stats.class"
+         :style="$options.net_stats.style"
          >
          <!-- {{iface+'-'+messure}} -->
        </div>
      <!-- </template> -->
    </template>
    <!-- v-if="messure == 'packets'" -->
-<!-- v-if="messure == 'bytes' || messure == 'packets'" -->
+  <!-- v-if="messure == 'bytes' || messure == 'packets'" -->
 
-   <!-- stats -->
+   <!-- OS stats -->
 
-    <!--
-    - Dynamic components:
-    - https://forum.vuejs.org/t/render-components-with-dynamic-names/14153
-    -->
-
-    <!-- <template v-for="(stat, name) in $options.stats">
-      <template v-if="Array.isArray(stat)">
-        <div :class="stat[0].class">
-          <canvas :id="name" :count="stat.length"/>
-        </div>
-        <template v-for="(mixed_stat, index) in stat">
-          <stat.type v-if="stats[name][index].data"
-            v-bind="mixed_stat.options"
-            :is="mixed_stat.type"
-            :id="name+'-'+index"
-            :ref="name+'-'+index"
-            :data="stats[name][index].data"
-            :labels="stats[name][index].labels"
-            :target="name"
-          />
-
-          <stat.type v-else
-            v-bind="mixed_stat.options"
-            :is="mixed_stat.type"
-            :id="name+'-'+index"
-            :ref="name+'-'+index"
-            :target="name"
-          />
-        </template>
-
-      </template>
-
-      <template v-else>
-        <stat.type v-if="stats[name].data"
-          v-bind="stat.options"
-          :is="stat.type"
-          :class="stat.class"
-          :id="name"
-          :ref="name"
-          :data="stats[name].data"
-          :labels="stats[name].labels"
-        />
-
-        <stat.type v-else
-          v-bind="stat.options"
-          :is="stat.type"
-          :class="stat.class"
-          :id="name"
-          :ref="name"
-        />
-      </template>
-
-
-
-    </template> -->
-
-    <div id="graphdiv"></div>
+    <div v-for="(stat, name) in $options.stats"
+      :key="name"
+      :class="stat.class"
+      :style="stat.style"
+      :id="name"
+      :ref="name"
+    >
+    </div>
 
   </div>
 </template>
@@ -92,7 +46,7 @@ import Dygraph from 'dygraphs'
 // Vue.use(VueCharts)
 
 import stats from './json/os.dygraphs'
-// import net_stats from './json/net.chartkick'
+import net_stats from './json/net.dygraphs'
 
 export default {
   // name: 'App',
@@ -131,7 +85,7 @@ export default {
   },
 
   stats: stats,
-  // net_stats: net_stats,
+  net_stats: net_stats,
 
   data () {
     return {
@@ -143,7 +97,6 @@ export default {
     }
   },
   created () {
-
 
     // Object.each(this.$options.stats, function(stat, name){
     //   if(Array.isArray(stat)){
@@ -165,14 +118,34 @@ export default {
     // this.stats.uptime.labels = this.formated_timestamps
   },
   mounted () {
-    let g = new Dygraph(
-        document.getElementById("graphdiv"),  // containing div
-        "Date,Temperature\n" +                // the data series
-        "2008-05-07,75\n" +
-        "2008-05-08,70\n" +
-        "2008-05-09,80\n",
-        { }                                   // the options
-      );
+    Object.each(this.$options.stats, function(stat, name){
+
+      let data = [[]]
+      if(stat.options.labels)
+        Array.each(stat.options.labels, function(label, index){
+          if(index == 0){
+            data[0].push(Date.now())
+          }
+          else{
+            data[0].push(0)
+          }
+
+
+        })
+
+      this.$set(this.stats, name, {lastupdate: 0, 'data': data })
+      // stat.option.dataProvider = this.stats[name].data
+      this.$set(this.charts, name, new Dygraph(
+          document.getElementById(name),  // containing div
+          this.stats[name].data,
+          stat.options
+        ))
+
+      if(stat.init)
+        stat.init(this.charts[name], this.stats[name])
+
+    }.bind(this))
+
     // Object.each(this.$options.stats, function(stat, name){
     //   console.log(this.stats[name].data)
     //
@@ -254,10 +227,9 @@ export default {
 
         let data = this.stats.uptime.data
         // let labels = this.stats.uptime.labels
+        // this.stats.uptime.labels = this.formated_timestamps
 
-        this.stats.uptime.labels = this.formated_timestamps
-
-        data.push(val)
+        data.push([new Date(this.uptime.timestamp), val])
 
         // data.push(val)
         // labels.push(this.uptime.timestamp)
@@ -275,18 +247,17 @@ export default {
         // )
 
         //
-        // if(this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval){
-        //   // this.charts.uptime.validateData();
-        //   this.queueDataUpdate(this.charts.uptime)//no need to pass data param
-        //
-        //   this.stats.uptime.lastupdate = Date.now()
-        // }
+        if(this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval){
+          this.charts.uptime.updateOptions( { 'file': data } );
+
+          this.stats.uptime.lastupdate = Date.now()
+        }
       }
 
     },
     'loadavg.value': function(val){
-      if(this.$refs['loadavg-0']){
-        let loadavg = this.stats.loadavg
+      if(this.$refs['loadavg']){
+        let data = this.stats.loadavg.data
 
         // let values = { date: new Date(this.loadavg.timestamp) }
 
@@ -296,32 +267,20 @@ export default {
         // }.bind(this))
 
 
+        let loadavg = [new Date(this.loadavg.timestamp)]
 
-        Array.each(loadavg, function(stat, index){
-          let data = stat.data
-          stat.labels =  this.formated_timestamps
+        Array.each(val, function(value, index){
+          loadavg.push(value)
 
-          // let load = data[index]
-          // if(!load){
-          //   load = { data: [] }
-          // }
-
-          data.push(val[index])
-
-          let length = data.length
-          data.splice(
-            -this.timestamps.length -1,
-            length - this.timestamps.length
-          )
-
-          stat.labels.splice(
-            -this.timestamps.length -1,
-            length - this.timestamps.length
-          )
-
-          // Vue.set(data, index, load)
         }.bind(this))
 
+        data.push(loadavg)
+
+        let length = data.length
+        data.splice(
+          -this.timestamps.length -1,
+          length - this.timestamps.length
+        )
 
         // console.log(this.stats.loadavg)
 
@@ -330,120 +289,127 @@ export default {
         //   length - this.timestamps.length
         // )
 
-        // if(this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval){
-        //   // https://www.amcharts.com/kbase/preserving-zoom-serial-chart-across-data-updates/
-        //   // "zoomed" will be called after data update so we need to ignore the next call for it
-        //   this.charts.ignoreZoomed = true;
-        //
-        //   // this.charts.loadavg.validateData();
-        //   this.queueDataUpdate(this.charts.loadavg)//no need to pass data param
-        //
-        //   this.stats.loadavg.lastupdate = Date.now()
-        // }
+        if(this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval){
+          this.charts.loadavg.updateOptions( { 'file': data } );
+          this.stats.loadavg.lastupdate = Date.now()
+        }
 
       }
 
     },
     'networkInterfaces.value': function(val){
-      // let self = this
-      //
-      // let ifaces = Object.keys(val)
-      // let properties = Object.keys(val[ifaces[0]])
-      // let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
-      //
-      //
-      // Array.each(ifaces, function(iface){
-      //   if(!self.networkInterfaces_stats[iface])
-      //     self.$set(self.networkInterfaces_stats, iface, {})
-      //
-      //   /**
-      //   * turn data property->messure (ex: transmited { bytes: .. }),
-      //   * to: messure->property (ex: bytes {transmited:.., recived: ... })
-      //   **/
-      //   Array.each(messures, function(messure){// "bytes" | "packets"
-      //     if(!self.networkInterfaces_stats[iface][messure])
-      //       self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
-      //
-      //       Array.each(properties, function(property){// "recived" | "transmited"
-      //         if(property == 'recived' || property == 'transmited'){
-      //
-      //           let current = val[iface][property][messure]
-      //           let prev = self.networkInterfaces.prev.value[iface][property][messure]
-      //           let data = current - prev + 0
-      //
-      //           if(messure == 'bytes')
-      //             data = data / 1024
-      //           // let serie = {}
-      //
-      //           // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure]))
-      //           let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-      //
-      //           let value = copy.getLast()
-      //           if(value == null){//no data yet
-      //             value = {}
-      //           }
-      //
-      //           value[property] = data
-      //
-      //           let timestamp = JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
-      //
-      //           if(!value['date'] || value['date'] != timestamp){
-      //             value['date'] =  timestamp
-      //             copy.push(value)
-      //           }
-      //
-      //           let length = copy.length
-      //
-      //           copy.splice(
-      //             -self.timestamps.length -1,
-      //             length - self.timestamps.length
-      //           )
-      //
-      //           self.networkInterfaces_stats[iface][messure].data = JSON.parse(JSON.stringify(copy))
-      //
-      //         }
-      //       })
-      //
-      //
-      //   })
-      //
-      // })
-      //
-      //
-      //
-      //   Object.each(this.networkInterfaces_stats, function(stat, iface){
-      //     Object.each(stat, function(value, messure){
-      //
-      //
-      //       if(document.getElementById(iface+'-'+messure)){
-      //
-      //         if(!this.networkInterfaces_charts[iface+'-'+messure]){
-      //           //console.log('---validatin---', iface+'-'+messure)
-      //
-      //           let option = JSON.parse(JSON.stringify(this.$options.net_stats.option))
-      //           Array.each(option.valueAxes, function(axis, index){
-      //             axis.id = iface+'-'+messure+'-'+axis.id
-      //             option.graphs[index].valueAxis = axis.id
-      //           })
-      //
-      //           this.$set(this.networkInterfaces_charts, iface+'-'+messure, AmCharts.makeChart(iface+'-'+messure, option))
-      //
-      //           if(this.$options.net_stats.init)
-      //             this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
-      //         }
-      //         // else{
-      //
-      //         if(value.lastupdate < Date.now() - this.$options.net_stats.interval){
-      //           // this.networkInterfaces_charts[iface+'-'+messure].dataProvider = value.data
-      //           // this.networkInterfaces_charts[iface+'-'+messure].validateData()
-      //           this.queueDataUpdate(this.networkInterfaces_charts[iface+'-'+messure], value.data)
-      //
-      //           value.lastupdate = Date.now()
-      //         }
-      //       }
-      //
-      //     }.bind(this))
-      //   }.bind(this))
+      let self = this
+
+      let ifaces = Object.keys(val)
+      let properties = Object.keys(val[ifaces[0]])
+      let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
+
+
+      Array.each(ifaces, function(iface){
+        if(!self.networkInterfaces_stats[iface])
+          self.$set(self.networkInterfaces_stats, iface, {})
+
+        /**
+        * turn data property->messure (ex: transmited { bytes: .. }),
+        * to: messure->property (ex: bytes {transmited:.., recived: ... })
+        **/
+        Array.each(messures, function(messure){// "bytes" | "packets"
+          if(!self.networkInterfaces_stats[iface][messure])
+            self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
+
+            Array.each(properties, function(property){// "recived" | "transmited"
+              if(property == 'recived' || property == 'transmited'){
+
+                let current = val[iface][property][messure]
+                let prev = self.networkInterfaces.prev.value[iface][property][messure]
+                let data = current - prev + 0
+
+                if(messure == 'bytes')
+                  data = data / 1024
+                // let serie = {}
+
+                if(property == 'recived')//negative, so it end up ploting under X axis
+                  data = 0 - data
+
+                // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure]))
+                let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
+
+                let value = copy.getLast()
+                if(value == null || value.length == 3){//no data yet || has timestamp,OUT,IN values already
+                  let timestamp = JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
+                  value = [timestamp, data]
+                  copy.push(value)
+                }
+                else if(value.length < 3){//has timestamp
+                  value.push(data)
+                  copy.push(value)
+                }
+                // value[property] = data
+
+
+
+
+
+                let length = copy.length
+
+                copy.splice(
+                  -self.timestamps.length -1,
+                  length - self.timestamps.length
+                )
+
+                self.networkInterfaces_stats[iface][messure].data = JSON.parse(JSON.stringify(copy))
+
+              }
+            })
+
+
+        })
+
+      })
+
+      console.log(self.networkInterfaces_stats)
+
+
+        Object.each(this.networkInterfaces_stats, function(stat, iface){
+          Object.each(stat, function(value, messure){
+
+
+            if(document.getElementById(iface+'-'+messure)){
+
+              if(!this.networkInterfaces_charts[iface+'-'+messure]){
+                //console.log('---validatin---', iface+'-'+messure)
+
+                let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
+                // Array.each(option.valueAxes, function(axis, index){
+                //   axis.id = iface+'-'+messure+'-'+axis.id
+                //   option.graphs[index].valueAxis = axis.id
+                // })
+
+                this.$set(this.networkInterfaces_charts,
+                  iface+'-'+messure,
+                  new Dygraph(
+                      document.getElementById(iface+'-'+messure),  // containing div
+                      this.networkInterfaces_stats[iface][messure].data,
+                      option
+                    )
+                )
+
+
+                if(this.$options.net_stats.init)
+                  this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
+              }
+              // else{
+
+              if(value.lastupdate < Date.now() - this.$options.net_stats.interval){
+
+                this.networkInterfaces_charts[iface+'-'+messure].updateOptions( { 'file': value.data } );
+                value.lastupdate = Date.now()
+
+              }
+            }
+
+          }.bind(this))
+        }.bind(this))
 
     },
   },
