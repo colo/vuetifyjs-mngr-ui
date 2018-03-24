@@ -14,6 +14,7 @@
          :class="$options.net_stats.class"
          :style="$options.net_stats.style"
          >
+
          <!-- {{iface+'-'+messure}} -->
        </div>
      <!-- </template> -->
@@ -24,11 +25,11 @@
    <!-- OS stats -->
 
     <div v-for="(stat, name) in $options.stats"
-      :key="name"
-      :class="stat.class"
-      :style="stat.style"
-      :id="name"
-      :ref="name"
+    :key="name"
+    :ref="name"
+    :id="name"
+    :class="stat.class"
+    :style="stat.style"
     >
     </div>
 
@@ -38,6 +39,8 @@
 <script>
 
 import Dygraph from 'dygraphs'
+import 'dygraphs/src/extras/smooth-plotter'
+import 'dygraphs/dist/dygraph.css'
 
 // import ChartJS from 'chart.js'
 // import 'hchs-vue-charts/dist/vue-charts.js'
@@ -464,12 +467,77 @@ export default {
 
 <style scoped>
 
-.line {
-  width: '80%';
-  height: 300px;
+.container-with-legend {
+    display: inline-block;
+    overflow: hidden;
+
+    transform: translate3d(0,0,0);
+
+    /* fix minimum scrollbar issue in firefox */
+    min-height: 99px;
+
+    /* required for child elements to have absolute position */
+    position: relative;
+
+    /* width and height is given per chart with data-width and data-height */
 }
-.gauge {
-  width: 200px;
-  height: 200px;
+.chart-with-legend-right {
+    position: absolute; /* within .netdata-container */
+    top: 0; /* within .netdata-container */
+    left: 0; /* within .netdata-container */
+    display: block;
+    overflow: hidden;
+    margin-right: 140px; /* --legend-width */
+    width: calc(100% - 140px); /* --legend-width */
+    height: 100%;
+    z-index: 5;
+    flex-grow: 1;
+
+    /* width and height is calculated (depends on the appearance of the legend) */
+}
+
+.dygraph-chart {
+
+}
+
+.dygraph-ylabel {
+}
+
+.dygraph-axis-label-x {
+    overflow-x: hidden;
+}
+
+.dygraph-label-rotate-left {
+    text-align: center;
+    /* See http://caniuse.com/#feat=transforms2d */
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+
+/* For y2-axis label */
+.dygraph-label-rotate-right {
+    text-align: center;
+    /* See http://caniuse.com/#feat=transforms2d */
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+}
+
+.dygraph-title {
+    text-indent: 56px;
+    text-align: left;
+    position: absolute;
+    left: 0px;
+    top: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 </style>

@@ -7,6 +7,19 @@ export default {
     showRoller: true,
     // valueRange: [0.0, 1.2],
     labels: ['Date', 'OUT', 'IN'],
+    series: {
+     'OUT': {
+       plotter: smoothPlotter,
+       // color: 'red',
+       strokeWidth: 2
+     },
+     'IN': {
+       plotter: smoothPlotter,
+       // color: 'red',
+       strokeWidth: 2
+     }
+
+   },
     axis : {
       x : {
         // valueFormatter: Dygraph.dateString_,
